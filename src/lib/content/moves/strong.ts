@@ -1,3 +1,47 @@
-export const STRONG_PREFIX = ['Crushing', 'Bloody', 'Iron', 'Relentless', 'Sundering'];
-
-export const STRONG_SUFFIX = ['Strike', 'Charge', 'Cleave', 'Rush', 'Blow'];
+export const STRONG_PREFIX = [
+	'Crushing',
+	'Bloody',
+	'Relentless',
+	'Sundering',
+	'Debilitating',
+	'Taunting',
+	'Vicious',
+	'Grappling',
+	'Feinting',
+	'Precise',
+	'Rapid',
+	'Brutal',
+	'Heroic'
+];
+export const STRONG_WEAPON = [
+	'Mace',
+	'Flail',
+	'Shield',
+	'Glaive',
+	'Halberd',
+	'Sword',
+	'Axe',
+	'Rapier',
+	'Dagger',
+	'Whip',
+	'Fist',
+	'Gun',
+	'Bow',
+	'Crossbow',
+	'Javelin',
+	'Scythe',
+	'Staff',
+	'Hammer'
+];
+export const STRONG_SUFFIX = [
+	'Strike',
+	'Charge',
+	'Cleave',
+	'Rush',
+	'Blow',
+	'Flurry',
+	'Sweep',
+	'Shove',
+	'Throw',
+	'Flourish'
+];

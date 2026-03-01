@@ -1,6 +1,12 @@
 import type { Character, AttributeName, Archetype } from '../models/character';
 
-import { randomFrom, randomUnique, generateId } from './utils';
+import {
+	randomFrom,
+	randomUnique,
+	generateId,
+	capitalize,
+	prepositionForExperience
+} from './utils';
 import { generateName } from './generateName';
 
 import { EXPERIENCES } from '../content/experiences';
@@ -112,7 +118,9 @@ function generateSummary(
 	experience: string,
 	ancestry: string
 ) {
-	return `A ${archetype} ${ancestry ? ancestry : ''} ${vocation} of ${affiliation} who ${experience.toLowerCase()}.`;
+	const preposition = prepositionForExperience(experience);
+	const summary = `A ${archetype} ${ancestry ? ancestry : ''} ${vocation} of the ${affiliation} who ${preposition} ${experience.toLowerCase()}.`;
+	return summary;
 }
 
 export function generateCharacter(): Character {
@@ -122,7 +130,7 @@ export function generateCharacter(): Character {
 
 	const ancestry = generateAncestry();
 
-	const vocationName = randomFrom(VOCATIONS);
+	const vocationName = capitalize(randomFrom(VOCATIONS));
 	const affiliationName = randomFrom(AFFILIATIONS);
 
 	const experiencesRaw = randomUnique(EXPERIENCES, 2);

@@ -5,6 +5,6 @@ export const AFFILIATIONS = [
 	'Order of the Black Sepulcher',
 	'Crimson Banner Company',
 	'Ashen Covenant',
-	'The Gilded Court',
+	'Gilded Court',
 	'Brotherhood of Salt'
 ];
