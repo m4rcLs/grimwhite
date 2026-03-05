@@ -31,11 +31,11 @@ Inspirations: [scvmbirther](https://scvmbirther.makedatanotlore.dev/), [shadowda
 | 13 | Character list page (`/characters`) | **DONE** | Lists preserved characters with summary |
 | 14 | Character sheet page (`/characters/[id]`) | **DONE** | Read-only sheet with all data, archetype feature, Essence Pool |
 | 15 | Editable character sheet (edit name, traits, moves, experiences, attributes) | **DONE** | Edit mode toggle with inline editing for all fields |
-| 16 | Manual level-up (button, levels 1–10) | **NOT DONE** | No leveling logic implemented |
-| 17 | Attribute increase at L1, L3, L5, L7, L9, L10 (cap 3, L10 cap 4, total=10) | **NOT DONE** | |
-| 18 | New move slot at L2, L4, L6, L8, L10 | **NOT DONE** | |
-| 19 | New experience at L4, L8, L10 | **NOT DONE** | |
-| 20 | Grit & Sanity increase at L3, L5, L7, L9 (formula: `1 + floor((level-1)/2)`) | **NOT DONE** | |
+| 16 | Manual level-up (button, levels 1–10) | **DONE** | `levelUp()` in `src/lib/generator/leveling.ts`, UI on character sheet |
+| 17 | Attribute increase at L1, L3, L5, L7, L9, L10 (cap 3, L10 cap 4, total=10) | **DONE** | Picker UI with cap enforcement, `canIncreaseAttribute()` |
+| 18 | New move slot at L2, L4, L6, L8, L10 | **DONE** | Auto-added with empty prefix/suffix |
+| 19 | New experience at L4, L8, L10 | **DONE** | Auto-added with placeholder name |
+| 20 | Grit & Sanity increase at L3, L5, L7, L9 (formula: `1 + floor((level-1)/2)`) | **DONE** | Recalculated via `calculateGritSanity()` |
 | 21 | Wise Essence Pool display (derived: `level + vocation attribute value`) | **DONE** | Shown on character sheet for Wise characters |
 | 22 | Archetype features display (Consequences of Conflict, One of the Best) | **DONE** | Rendered on character sheet page |
 | 23 | Notes/items textarea | **DONE** | Editable textarea in edit mode on character sheet |
@@ -67,16 +67,11 @@ None currently.
 8. ~~**Notes textarea** — large editable textarea for freeform notes/items~~
 9. ~~**Portrait placeholder** — display area with future image upload support~~
 
-### Phase 3 — Leveling System
+### Phase 3 — Leveling System ✅ DONE
 
-10. **Implement `levelUp()` function** in `src/lib/generator/leveling.ts` (or similar):
-    - Attribute increase at levels 3, 5, 7, 9, 10 (user selects which attribute)
-    - Attribute caps: max 3 normally, max 4 for one attribute at level 10, total must equal `4 + number_of_increases`
-    - New move slot at levels 2, 4, 6, 8, 10
-    - New experience at levels 4, 8, 10
-    - Grit & Sanity recalculation: `1 + floor((level - 1) / 2)`
-11. **Level-up button** on character sheet with attribute selection UI
-12. **Validation**: enforce attribute caps and level 10 total constraint
+10. ~~**Implement `levelUp()` function** in `src/lib/generator/leveling.ts`~~
+11. ~~**Level-up button** on character sheet with attribute selection UI~~
+12. ~~**Validation**: enforce attribute caps and level 10 total constraint~~
 
 ### Phase 4 — Theming & Polish
 

@@ -8,6 +8,15 @@
 	} from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { characterStore } from '$lib/stores/characterStore';
+	import {
+		canLevelUp,
+		levelUp,
+		applyAttributeIncrease,
+		levelUpSummary,
+		levelGrantsAttributeIncrease,
+		canIncreaseAttribute,
+		MAX_LEVEL
+	} from '$lib/generator/leveling';
 	import { goto } from '$app/navigation';
 	import { untrack } from 'svelte';
 
@@ -111,11 +120,40 @@
 	}
 
 	let confirmingDelete = $state(false);
+	let levelUpPending = $state(false);
+	let levelUpResult: import('$lib/generator/leveling').LevelUpResult | null = $state(null);
 
 	function removeCharacter() {
 		if (!character) return;
 		characterStore.remove(character.id);
 		goto('/');
+	}
+
+	function startLevelUp() {
+		if (!character || !canLevelUp(character)) return;
+		const result = levelUp(character);
+		levelUpResult = result;
+		if (result.grantsAttribute) {
+			// Need attribute selection — show the picker
+			levelUpPending = true;
+		} else {
+			// No attribute choice needed — apply immediately
+			characterStore.updateCharacter(result.character);
+			levelUpResult = null;
+		}
+	}
+
+	function confirmLevelUpAttribute(attr: AttributeName) {
+		if (!levelUpResult) return;
+		const withAttr = applyAttributeIncrease(levelUpResult.character, attr);
+		characterStore.updateCharacter(withAttr);
+		levelUpPending = false;
+		levelUpResult = null;
+	}
+
+	function cancelLevelUp() {
+		levelUpPending = false;
+		levelUpResult = null;
 	}
 </script>
 
@@ -181,6 +219,77 @@
 					{/if}
 				</div>
 			</div>
+
+			<!-- Level Up -->
+			{#if !editing && canLevelUp(character)}
+				<div class="mb-8">
+					{#if levelUpPending && levelUpResult}
+						<div class="rounded border border-amber-700 bg-amber-900/20 p-5">
+							<h3 class="mb-2 text-lg font-semibold text-amber-400">
+								Level Up to {levelUpResult.character.level}
+							</h3>
+							<p class="mb-1 text-sm text-neutral-400">
+								Gains: {levelUpSummary(levelUpResult.character.level).join(', ')}
+							</p>
+							<p class="mb-4 text-sm text-neutral-300">Choose an attribute to increase:</p>
+							<div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+								{#each ATTRIBUTE_NAMES as attr}
+									{@const canIncrease = canIncreaseAttribute(
+										character,
+										attr,
+										levelUpResult.character.level
+									)}
+									<button
+										onclick={() => confirmLevelUpAttribute(attr)}
+										disabled={!canIncrease}
+										class={`rounded border p-3 text-center transition ${
+											canIncrease
+												? 'border-amber-600 bg-neutral-800 hover:bg-amber-700/30 hover:text-amber-400'
+												: 'cursor-not-allowed border-neutral-700 bg-neutral-800 text-neutral-600'
+										}`}
+									>
+										<div class="text-xs tracking-wide uppercase">
+											{attributeLabels[attr]}
+										</div>
+										<div class="text-2xl font-bold text-amber-400">
+											{character.attributes[attr]}
+										</div>
+										{#if canIncrease}
+											<div class="text-xs text-amber-500">→ {character.attributes[attr] + 1}</div>
+										{:else}
+											<div class="text-xs text-neutral-600">max</div>
+										{/if}
+									</button>
+								{/each}
+							</div>
+							<button
+								onclick={cancelLevelUp}
+								class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+							>
+								Cancel
+							</button>
+						</div>
+					{:else}
+						<button
+							onclick={startLevelUp}
+							class="rounded border border-amber-700 bg-amber-900/20 px-5 py-3 text-sm font-semibold text-amber-400 transition hover:bg-amber-800/30"
+						>
+							Level Up → {character.level + 1}
+							<span class="ml-2 text-xs font-normal text-neutral-400">
+								({levelUpSummary(character.level + 1).join(', ')})
+							</span>
+						</button>
+					{/if}
+				</div>
+			{/if}
+
+			{#if !editing && character.level >= MAX_LEVEL}
+				<div
+					class="mb-8 rounded border border-neutral-700 bg-neutral-800 px-5 py-3 text-sm text-neutral-500 italic"
+				>
+					Maximum level reached.
+				</div>
+			{/if}
 
 			<!-- Portrait -->
 			<div class="mb-8 flex items-center gap-6">
