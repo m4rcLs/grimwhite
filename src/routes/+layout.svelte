@@ -2,6 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { characterStore } from '$lib/stores/characterStore';
 	import type { Character } from '$lib/models/character';
 
@@ -16,6 +17,15 @@
 
 	function toggleSidebar() {
 		sidebarOpen = !sidebarOpen;
+	}
+
+	function removeFromSidebar(e: Event, id: string) {
+		e.preventDefault();
+		e.stopPropagation();
+		characterStore.remove(id);
+		if (page.url.pathname === `/characters/${id}`) {
+			goto('/');
+		}
 	}
 
 	const currentPath = $derived(page.url.pathname);
@@ -101,20 +111,40 @@
 			<p class="px-3 text-xs text-neutral-500 italic">No souls preserved yet.</p>
 		{:else}
 			{#each characters as char}
-				<a
-					href={`/characters/${char.id}`}
-					onclick={toggleSidebar}
-					class={`mb-1 block rounded px-3 py-2 text-sm transition ${
-						currentPath === `/characters/${char.id}`
-							? 'bg-amber-700/20 text-amber-400'
-							: 'text-neutral-300 hover:bg-neutral-800 hover:text-amber-400'
-					}`}
-				>
-					<div class="font-medium">{char.name}</div>
-					<div class="text-xs text-neutral-500">
-						Lv {char.level} — {char.archetype}
-					</div>
-				</a>
+				<div class="group relative mb-1">
+					<a
+						href={`/characters/${char.id}`}
+						onclick={toggleSidebar}
+						class={`block rounded px-3 py-2 pr-8 text-sm transition ${
+							currentPath === `/characters/${char.id}`
+								? 'bg-amber-700/20 text-amber-400'
+								: 'text-neutral-300 hover:bg-neutral-800 hover:text-amber-400'
+						}`}
+					>
+						<div class="font-medium">{char.name}</div>
+						<div class="text-xs text-neutral-500">
+							Lv {char.level} — {char.archetype}
+						</div>
+					</a>
+					<button
+						onclick={(e) => removeFromSidebar(e, char.id)}
+						class="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 text-neutral-600 opacity-0 transition group-hover:opacity-100 hover:bg-red-900/40 hover:text-red-400"
+						title="Remove character"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-3.5 w-3.5"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</button>
+				</div>
 			{/each}
 		{/if}
 	</nav>

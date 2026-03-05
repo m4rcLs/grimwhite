@@ -2,6 +2,7 @@
 	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { characterStore } from '$lib/stores/characterStore';
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	let { params } = $props();
@@ -37,6 +38,14 @@
 		const vocationAttr = char.vocation.assignedAttributes[0];
 		if (!vocationAttr) return char.level;
 		return char.level + char.attributes[vocationAttr];
+	}
+
+	let confirmingDelete = $state(false);
+
+	function removeCharacter() {
+		if (!character) return;
+		characterStore.remove(character.id);
+		goto('/');
 	}
 </script>
 
@@ -201,6 +210,34 @@
 						<span class="text-neutral-500 italic">No notes yet.</span>
 					{/if}
 				</p>
+			</div>
+
+			<!-- Delete -->
+			<div class="border-t border-neutral-700 pt-6">
+				{#if confirmingDelete}
+					<div class="flex items-center gap-4">
+						<span class="text-sm text-red-400">Banish this soul forever?</span>
+						<button
+							onclick={removeCharacter}
+							class="rounded bg-red-700 px-4 py-2 text-sm font-semibold transition hover:bg-red-600"
+						>
+							Yes, Banish
+						</button>
+						<button
+							onclick={() => (confirmingDelete = false)}
+							class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+						>
+							Cancel
+						</button>
+					</div>
+				{:else}
+					<button
+						onclick={() => (confirmingDelete = true)}
+						class="rounded border border-red-800 px-4 py-2 text-sm text-red-400 transition hover:bg-red-900/30"
+					>
+						Banish This Soul
+					</button>
+				{/if}
 			</div>
 		</div>
 	</div>
