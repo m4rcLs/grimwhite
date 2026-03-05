@@ -36,17 +36,14 @@
 	let currentEssence = $state(0);
 	let maxEssence = $derived.by(() => {
 		const char = editing ? draft : character;
-		console.log({ char });
 		if (char?.archetype !== 'wise') return;
 		const vocationAttr = char.vocation.assignedAttributes[0];
 		let max = char.level + (char.attributes[vocationAttr] ?? 0);
 		return max;
 	});
-	$effect(() => console.log({ maxEssence }));
 
 	$effect(() => {
 		const newEssence = Math.min(currentEssence, maxEssence ?? 0);
-		console.log({ newEssence });
 		if (newEssence >= currentEssence) return;
 		currentEssence = newEssence;
 	});
