@@ -251,6 +251,134 @@
 		notesOpen = false;
 	}
 
+	// Portrait upload/crop state
+	let portraitModalOpen = $state(false);
+	let portraitImg: HTMLImageElement | null = $state(null);
+	let cropCanvas: HTMLCanvasElement | null = $state(null);
+	let cropOffsetX = $state(0);
+	let cropOffsetY = $state(0);
+	let cropScale = $state(1);
+	let isDragging = $state(false);
+	let dragStartX = $state(0);
+	let dragStartY = $state(0);
+	let dragStartOffsetX = $state(0);
+	let dragStartOffsetY = $state(0);
+
+	const PORTRAIT_SIZE = 256;
+
+	// Redraw canvas whenever crop params or canvas ref change
+	$effect(() => {
+		if (cropCanvas && portraitImg) {
+			void cropOffsetX;
+			void cropOffsetY;
+			void cropScale;
+			drawCropPreview();
+		}
+	});
+
+	function openPortraitModal() {
+		portraitModalOpen = true;
+		portraitImg = null;
+		cropOffsetX = 0;
+		cropOffsetY = 0;
+		cropScale = 1;
+	}
+
+	function handlePortraitFile(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.onload = () => {
+			const img = new Image();
+			img.onload = () => {
+				portraitImg = img;
+				// Fit image so the shorter side fills the frame
+				const minDim = Math.min(img.width, img.height);
+				cropScale = PORTRAIT_SIZE / minDim;
+				cropOffsetX = (PORTRAIT_SIZE - img.width * cropScale) / 2;
+				cropOffsetY = (PORTRAIT_SIZE - img.height * cropScale) / 2;
+				drawCropPreview();
+			};
+			img.src = reader.result as string;
+		};
+		reader.readAsDataURL(file);
+	}
+
+	function drawCropPreview() {
+		if (!cropCanvas || !portraitImg) return;
+		const ctx = cropCanvas.getContext('2d');
+		if (!ctx) return;
+		ctx.clearRect(0, 0, PORTRAIT_SIZE, PORTRAIT_SIZE);
+		ctx.fillStyle = '#1a1a1a';
+		ctx.fillRect(0, 0, PORTRAIT_SIZE, PORTRAIT_SIZE);
+		ctx.drawImage(
+			portraitImg,
+			cropOffsetX,
+			cropOffsetY,
+			portraitImg.width * cropScale,
+			portraitImg.height * cropScale
+		);
+	}
+
+	function onCropWheel(e: WheelEvent) {
+		e.preventDefault();
+		if (!portraitImg) return;
+		const delta = e.deltaY > 0 ? 0.95 : 1.05;
+		const newScale = Math.max(0.1, Math.min(10, cropScale * delta));
+		// Zoom towards center
+		const cx = PORTRAIT_SIZE / 2;
+		const cy = PORTRAIT_SIZE / 2;
+		cropOffsetX = cx - ((cx - cropOffsetX) / cropScale) * newScale;
+		cropOffsetY = cy - ((cy - cropOffsetY) / cropScale) * newScale;
+		cropScale = newScale;
+		drawCropPreview();
+	}
+
+	function onCropPointerDown(e: PointerEvent) {
+		isDragging = true;
+		dragStartX = e.clientX;
+		dragStartY = e.clientY;
+		dragStartOffsetX = cropOffsetX;
+		dragStartOffsetY = cropOffsetY;
+		(e.target as HTMLElement).setPointerCapture(e.pointerId);
+	}
+
+	function onCropPointerMove(e: PointerEvent) {
+		if (!isDragging) return;
+		cropOffsetX = dragStartOffsetX + (e.clientX - dragStartX);
+		cropOffsetY = dragStartOffsetY + (e.clientY - dragStartY);
+		drawCropPreview();
+	}
+
+	function onCropPointerUp() {
+		isDragging = false;
+	}
+
+	function savePortrait() {
+		if (!cropCanvas) return;
+		const dataUrl = cropCanvas.toDataURL('image/webp', 0.85);
+		if (editing && draft) {
+			draft.portrait = dataUrl;
+		} else if (character) {
+			characterStore.updateCharacter({ ...character, portrait: dataUrl });
+		}
+		portraitModalOpen = false;
+	}
+
+	function removePortrait() {
+		if (editing && draft) {
+			draft.portrait = undefined;
+		} else if (character) {
+			characterStore.updateCharacter({ ...character, portrait: undefined });
+		}
+		portraitModalOpen = false;
+	}
+
+	function cancelPortraitModal() {
+		portraitModalOpen = false;
+	}
+
 	function toggleMarkedAttribute(attr: AttributeName) {
 		if (editing && draft) {
 			const marks = draft.markedAttributes ?? [];
@@ -340,47 +468,27 @@
 				{/if}
 			</div>
 
-			<!-- Header -->
-			<div class="mb-8">
-				{#if editing}
-					<input
-						type="text"
-						bind:value={draft.name}
-						class="mb-1 w-full border-b-2 border-amber-600 bg-transparent text-4xl font-bold text-neutral-200 outline-none focus:border-amber-400"
-					/>
-				{:else}
-					<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
-				{/if}
-				<p class="text-lg tracking-wide text-amber-400 uppercase">
-					Level {displayChar.level} — {displayChar.archetype}
-				</p>
-				{#if editing}
-					<input
-						type="text"
-						bind:value={draft.summary}
-						placeholder="One-line summary…"
-						class="mt-2 w-full border-b border-neutral-600 bg-transparent text-neutral-400 italic outline-none focus:border-amber-400"
-					/>
-				{:else if displayChar.summary}
-					<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
-				{/if}
-			</div>
-
-			<!-- Portrait -->
-			<div class="mb-8 flex items-center gap-6">
-				<div
-					class="flex h-28 w-28 shrink-0 items-center justify-center rounded border border-neutral-700 bg-neutral-800"
+			<!-- Header with Portrait -->
+			<div class="mb-8 flex items-start gap-5">
+				<!-- Portrait -->
+				<button
+					class="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-700 bg-neutral-800 transition hover:border-amber-600"
+					onclick={() => {
+						if (editing) openPortraitModal();
+					}}
+					disabled={!editing}
+					type="button"
 				>
 					{#if displayChar.portrait}
 						<img
 							src={displayChar.portrait}
 							alt={displayChar.name}
-							class="h-full w-full rounded object-cover"
+							class="h-full w-full object-cover"
 						/>
 					{:else}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="h-12 w-12 text-neutral-600"
+							class="h-10 w-10 text-neutral-600"
 							viewBox="0 0 24 24"
 							fill="currentColor"
 						>
@@ -389,8 +497,49 @@
 							/>
 						</svg>
 					{/if}
+					{#if editing}
+						<div
+							class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition group-hover:opacity-100"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-6 w-6 text-amber-400"
+								viewBox="0 0 20 20"
+								fill="currentColor"
+							>
+								<path
+									d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 0011.586 3H8.414a1 1 0 00-.707.293L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+								/>
+							</svg>
+						</div>
+					{/if}
+				</button>
+
+				<!-- Name / Level / Summary -->
+				<div class="min-w-0 flex-1">
+					{#if editing}
+						<input
+							type="text"
+							bind:value={draft.name}
+							class="mb-1 w-full border-b-2 border-amber-600 bg-transparent text-4xl font-bold text-neutral-200 outline-none focus:border-amber-400"
+						/>
+					{:else}
+						<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
+					{/if}
+					<p class="text-lg tracking-wide text-amber-400 uppercase">
+						Level {displayChar.level} — {displayChar.archetype}
+					</p>
+					{#if editing}
+						<input
+							type="text"
+							bind:value={draft.summary}
+							placeholder="One-line summary…"
+							class="mt-2 w-full border-b border-neutral-600 bg-transparent text-neutral-400 italic outline-none focus:border-amber-400"
+						/>
+					{:else if displayChar.summary}
+						<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
+					{/if}
 				</div>
-				<div class="text-sm text-neutral-500">Portrait — image upload coming soon</div>
 			</div>
 
 			<!-- Attributes -->
@@ -1017,6 +1166,97 @@
 						}`}
 					>
 						Confirm Level Up
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+	<!-- Portrait Upload Modal -->
+	{#if portraitModalOpen}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+			onclick={(e) => {
+				if (e.target === e.currentTarget) cancelPortraitModal();
+			}}
+			role="dialog"
+			aria-modal="true"
+			aria-label="Upload Portrait"
+		>
+			<div
+				class="mx-4 w-full max-w-md rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
+			>
+				<h2 class="mb-4 text-2xl font-bold text-amber-400">Portrait</h2>
+
+				{#if !portraitImg}
+					<label
+						class="flex h-48 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-neutral-600 transition hover:border-amber-500"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="mb-2 h-10 w-10 text-neutral-500"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+						<span class="text-sm text-neutral-400">Click to select an image</span>
+						<input type="file" accept="image/*" class="hidden" onchange={handlePortraitFile} />
+					</label>
+				{:else}
+					<div class="flex flex-col items-center gap-3">
+						<p class="text-xs text-neutral-500">Drag to reposition. Scroll to zoom.</p>
+						<div
+							class="overflow-hidden rounded-lg border border-neutral-700"
+							style="width: {PORTRAIT_SIZE}px; height: {PORTRAIT_SIZE}px;"
+						>
+							<canvas
+								bind:this={cropCanvas}
+								width={PORTRAIT_SIZE}
+								height={PORTRAIT_SIZE}
+								class="cursor-grab active:cursor-grabbing"
+								onwheel={onCropWheel}
+								onpointerdown={onCropPointerDown}
+								onpointermove={onCropPointerMove}
+								onpointerup={onCropPointerUp}
+								onpointercancel={onCropPointerUp}
+							></canvas>
+						</div>
+						<label class="cursor-pointer text-xs text-amber-400 underline hover:text-amber-300">
+							Choose different image
+							<input type="file" accept="image/*" class="hidden" onchange={handlePortraitFile} />
+						</label>
+					</div>
+				{/if}
+
+				<div class="mt-4 flex justify-end gap-3">
+					{#if displayChar.portrait}
+						<button
+							onclick={removePortrait}
+							class="mr-auto rounded bg-red-900/30 px-4 py-2 text-sm text-red-400 transition hover:bg-red-900/50"
+						>
+							Remove
+						</button>
+					{/if}
+					<button
+						onclick={cancelPortraitModal}
+						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+					>
+						Cancel
+					</button>
+					<button
+						onclick={savePortrait}
+						disabled={!portraitImg}
+						class={`rounded px-4 py-2 text-sm font-semibold transition ${
+							portraitImg
+								? 'bg-amber-700 text-black hover:bg-amber-600'
+								: 'cursor-not-allowed bg-neutral-700 text-neutral-500'
+						}`}
+					>
+						Save Portrait
 					</button>
 				</div>
 			</div>
