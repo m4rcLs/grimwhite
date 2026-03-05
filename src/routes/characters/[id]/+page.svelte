@@ -304,27 +304,141 @@
 			</div>
 
 			<!-- Attributes -->
-			<div class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-				{#each ATTRIBUTE_NAMES as key}
+			<div class="mb-8">
+				<div class="grid grid-cols-2 gap-x-8 gap-y-0 md:grid-cols-[1fr_1fr_auto_1fr_1fr]">
+					<!-- Brawns -->
 					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
 						<div class="text-sm tracking-wide text-neutral-400 uppercase">
-							{attributeLabels[key]}
+							{attributeLabels.brawns}
 						</div>
 						{#if editing}
 							<input
 								type="number"
 								min="0"
 								max="4"
-								bind:value={draft.attributes[key]}
+								bind:value={draft.attributes.brawns}
 								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
 							/>
 						{:else}
 							<div class="text-3xl font-bold text-amber-400">
-								{displayChar.attributes[key]}
+								{displayChar.attributes.brawns}
 							</div>
 						{/if}
 					</div>
-				{/each}
+					<!-- Agility -->
+					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
+						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+							{attributeLabels.agility}
+						</div>
+						{#if editing}
+							<input
+								type="number"
+								min="0"
+								max="4"
+								bind:value={draft.attributes.agility}
+								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+							/>
+						{:else}
+							<div class="text-3xl font-bold text-amber-400">
+								{displayChar.attributes.agility}
+							</div>
+						{/if}
+					</div>
+					<!-- Spacer (desktop only) -->
+					<div class="hidden md:block"></div>
+					<!-- Wits -->
+					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
+						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+							{attributeLabels.wits}
+						</div>
+						{#if editing}
+							<input
+								type="number"
+								min="0"
+								max="4"
+								bind:value={draft.attributes.wits}
+								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+							/>
+						{:else}
+							<div class="text-3xl font-bold text-amber-400">
+								{displayChar.attributes.wits}
+							</div>
+						{/if}
+					</div>
+					<!-- Presence -->
+					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
+						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+							{attributeLabels.presence}
+						</div>
+						{#if editing}
+							<input
+								type="number"
+								min="0"
+								max="4"
+								bind:value={draft.attributes.presence}
+								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+							/>
+						{:else}
+							<div class="text-3xl font-bold text-amber-400">
+								{displayChar.attributes.presence}
+							</div>
+						{/if}
+					</div>
+
+					<!-- Bloodied row: spans first 2 cols -->
+					<div class="col-span-2 flex flex-col items-center py-2">
+						<div class="flex w-full items-center gap-2 px-4">
+							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
+							<label class="flex cursor-pointer items-center gap-2">
+								<input
+									type="checkbox"
+									checked={displayChar.bloodied}
+									onchange={() => {
+										if (editing && draft) {
+											draft.bloodied = !draft.bloodied;
+										} else if (character) {
+											characterStore.updateCharacter({
+												...character,
+												bloodied: !character.bloodied
+											});
+										}
+									}}
+									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-red-700 bg-neutral-900 transition checked:bg-red-700"
+								/>
+								<span class="text-xs font-semibold tracking-wide text-red-400 uppercase"
+									>Bloodied</span
+								>
+							</label>
+							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
+						</div>
+					</div>
+					<!-- Spacer (desktop only) -->
+					<div class="hidden md:block"></div>
+					<!-- Rattled row: spans last 2 cols -->
+					<div class="col-span-2 flex flex-col items-center py-2">
+						<div class="flex w-full items-center gap-2 px-4">
+							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
+							<label class="flex cursor-pointer items-center gap-2">
+								<input
+									type="checkbox"
+									checked={displayChar.rattled}
+									onchange={() => {
+										if (editing && draft) {
+											draft.rattled = !draft.rattled;
+										} else if (character) {
+											characterStore.updateCharacter({ ...character, rattled: !character.rattled });
+										}
+									}}
+									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-violet-700 bg-neutral-900 transition checked:bg-violet-700"
+								/>
+								<span class="text-xs font-semibold tracking-wide text-violet-400 uppercase"
+									>Rattled</span
+								>
+							</label>
+							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<!-- Grit, Sanity & Essence -->

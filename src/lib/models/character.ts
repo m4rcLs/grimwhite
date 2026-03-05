@@ -39,6 +39,8 @@ export interface Character {
 
 	grit: number;
 	sanity: number;
+	bloodied: boolean;
+	rattled: boolean;
 
 	ancestry: Trait;
 	vocation: Trait;

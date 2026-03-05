@@ -168,6 +168,8 @@ export function generateCharacter(): Character {
 		experiences,
 		moves,
 		notes: '',
+		bloodied: false,
+		rattled: false,
 		createdAt: Date.now()
 	};
 
