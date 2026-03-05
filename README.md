@@ -1,42 +1,42 @@
-# sv
+# Grimwhite
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A dark-fantasy TTRPG random character generator built with SvelteKit 2, Svelte 5, TailwindCSS 4 and TypeScript.
 
-## Creating a project
+Grimwhite generates complete player characters for a grim, low-fantasy tabletop RPG setting. Each character comes with a name, archetype, ancestry, vocation, affiliation, experiences, combat moves, attributes, and a one-line narrative summary.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```sh
-# create a new project
-npx sv create my-app
-```
+- **One-click character generation** — press "Birth the Wretch" to get a fully randomised character.
+- **Three archetypes** — Strong (Combat Maneuvers), Deft (Special Techniques), Wise (Miracles).
+- **Rich content tables** — 100+ vocations, 400+ experiences, multiple ancestries, affiliations and procedurally named moves.
+- **Preserve characters** — save generated characters to `localStorage` and browse them on the `/characters` page.
+- **NLP-powered summaries** — uses [compromise](https://github.com/spencermountain/compromise) to build grammatically correct character summaries.
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.12.4 create --template minimal --types ts --add prettier eslint tailwindcss="plugins:typography,forms" vitest="usages:unit,component" --install npm ./
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Getting Started
 
 ```sh
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Open [http://localhost:5173](http://localhost:5173).
 
-To create a production version of your app:
+## Scripts
 
-```sh
-npm run build
-```
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run check` | Type-check with `svelte-check` |
+| `npm run lint` | Lint & format check |
+| `npm run format` | Auto-format with Prettier |
+| `npm run test` | Run unit tests (Vitest) |
 
-You can preview the production build with `npm run preview`.
+## Tech Stack
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- **SvelteKit 2** + **Svelte 5** (runes)
+- **TailwindCSS 4** with typography & forms plugins
+- **TypeScript**
+- **Vitest** (node + Playwright browser tests)
+- **compromise** (NLP for summary generation)
