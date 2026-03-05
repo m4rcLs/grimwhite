@@ -28,7 +28,9 @@ export const STRONG_PREFIX = [
 	'Vengeful',
 	'Furious',
 	'Splintering',
-	'Pulverizing'
+	'Pulverizing',
+	'Spinning',
+	'Tripping'
 ];
 export const STRONG_WEAPON = [
 	'Mace',
