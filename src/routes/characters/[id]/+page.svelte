@@ -794,7 +794,7 @@
 					{#if displayChar.level >= 5}
 						<div class="col-span-2 flex flex-col items-center pt-3 md:col-span-5">
 							<div class="flex items-center gap-3">
-								<span class="text-xs font-semibold tracking-wide text-yellow-400 uppercase"
+								<span class="text-xs font-semibold tracking-wide uppercase" style="color: var(--color-gold);"
 									>Spark</span
 								>
 								{#each [0, 1] as i}
@@ -803,8 +803,8 @@
 											type="checkbox"
 											checked={(displayChar.spark ?? [false, false])[i]}
 											onchange={() => toggleSpark(i as 0 | 1)}
-											class="h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-yellow-500 transition checked:bg-yellow-500"
-											style="background-color: var(--bg-base);"
+											class="spark-dot h-5 w-5 cursor-pointer appearance-none rounded-full border-2 transition"
+											style="border-color: var(--color-gold); background-color: var(--bg-base);"
 										/>
 									</label>
 								{/each}
