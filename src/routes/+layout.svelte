@@ -72,7 +72,7 @@
 <aside
 	class={`fixed top-0 left-0 z-40 flex h-full w-64 flex-col border-r border-neutral-700 bg-neutral-900 transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
 >
-	<div class="flex items-center justify-between border-b border-neutral-700 px-4 py-4">
+	<div class="flex items-center justify-between border-b border-neutral-700 px-4 py-4 pl-18">
 		<span class="text-lg font-bold tracking-wide text-amber-400">Grimwhite</span>
 	</div>
 
