@@ -16,7 +16,7 @@ import { AFFILIATIONS } from '../content/affiliations';
 
 import { STRONG_PREFIX, STRONG_SUFFIX, STRONG_WEAPON } from '../content/moves/strong';
 import { DEFT_PREFIX, DEFT_SUFFIX } from '../content/moves/deft';
-import { WISE_PREFIX, WISE_SUFFIX } from '../content/moves/wise';
+import { generateMiracleName } from '../content/moves/miracles';
 
 const ATTRIBUTES: AttributeName[] = ['brawns', 'agility', 'wits', 'presence'];
 
@@ -80,12 +80,12 @@ function generateMoveSlot(archetype: Archetype) {
 		moves: [
 			{
 				id: generateId(),
-				name: generateMoveName(WISE_PREFIX, WISE_SUFFIX),
+				name: generateMiracleName(),
 				active: true
 			},
 			{
 				id: generateId(),
-				name: generateMoveName(WISE_PREFIX, WISE_SUFFIX),
+				name: generateMiracleName(),
 				active: false
 			}
 		]
