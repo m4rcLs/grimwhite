@@ -54,17 +54,8 @@
 	{@const feature = getArchetypeFeature(character.archetype)}
 	{@const essence = essencePool(character)}
 
-	<div class="min-h-screen bg-neutral-900 p-8 text-neutral-200">
+	<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
 		<div class="mx-auto max-w-4xl">
-			<!-- Navigation -->
-			<div class="mb-6 flex items-center gap-4 text-sm text-neutral-400">
-				<a href="/" class="hover:text-amber-400">Generator</a>
-				<span>/</span>
-				<a href="/characters" class="hover:text-amber-400">Preserved Souls</a>
-				<span>/</span>
-				<span class="text-neutral-200">{character.name}</span>
-			</div>
-
 			<!-- Header -->
 			<div class="mb-8">
 				<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>

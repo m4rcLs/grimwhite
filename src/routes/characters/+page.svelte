@@ -14,7 +14,7 @@
 	});
 </script>
 
-<div class="min-h-screen bg-neutral-900 p-8 text-neutral-200">
+<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
 	<div class="mx-auto max-w-4xl">
 		<h1 class="mb-6 text-3xl font-bold">Preserved Souls</h1>
 
