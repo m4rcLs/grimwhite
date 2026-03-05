@@ -121,8 +121,11 @@
 	}
 
 	let confirmingDelete = $state(false);
-	let levelUpPending = $state(false);
+	let notesOpen = $state(false);
+	let notesDraft = $state('');
+	let levelUpOpen = $state(false);
 	let levelUpResult: import('$lib/generator/leveling').LevelUpResult | null = $state(null);
+	let selectedAttribute: AttributeName | null = $state(null);
 
 	function removeCharacter() {
 		if (!character) return;
@@ -130,31 +133,48 @@
 		goto('/');
 	}
 
-	function startLevelUp() {
+	function openLevelUp() {
 		if (!character || !canLevelUp(character)) return;
 		const result = levelUp(character);
 		levelUpResult = result;
-		if (result.grantsAttribute) {
-			// Need attribute selection — show the picker
-			levelUpPending = true;
-		} else {
-			// No attribute choice needed — apply immediately
-			characterStore.updateCharacter(result.character);
-			levelUpResult = null;
-		}
+		selectedAttribute = null;
+		levelUpOpen = true;
 	}
 
-	function confirmLevelUpAttribute(attr: AttributeName) {
+	function confirmLevelUp() {
 		if (!levelUpResult) return;
-		const withAttr = applyAttributeIncrease(levelUpResult.character, attr);
-		characterStore.updateCharacter(withAttr);
-		levelUpPending = false;
+		if (levelUpResult.grantsAttribute) {
+			if (!selectedAttribute) return;
+			const withAttr = applyAttributeIncrease(levelUpResult.character, selectedAttribute);
+			characterStore.updateCharacter(withAttr);
+		} else {
+			characterStore.updateCharacter(levelUpResult.character);
+		}
+		levelUpOpen = false;
 		levelUpResult = null;
+		selectedAttribute = null;
 	}
 
 	function cancelLevelUp() {
-		levelUpPending = false;
+		levelUpOpen = false;
 		levelUpResult = null;
+		selectedAttribute = null;
+	}
+
+	function openNotes() {
+		if (!character) return;
+		notesDraft = character.notes ?? '';
+		notesOpen = true;
+	}
+
+	function saveNotes() {
+		if (!character) return;
+		characterStore.updateCharacter({ ...character, notes: notesDraft });
+		notesOpen = false;
+	}
+
+	function cancelNotes() {
+		notesOpen = false;
 	}
 </script>
 
@@ -175,122 +195,65 @@
 
 	<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
 		<div class="mx-auto max-w-4xl">
-			<!-- Header -->
-			<div class="mb-8 flex items-start justify-between">
-				<div class="flex-1">
-					{#if editing}
-						<input
-							type="text"
-							bind:value={draft.name}
-							class="mb-1 w-full border-b-2 border-amber-600 bg-transparent text-4xl font-bold text-neutral-200 outline-none focus:border-amber-400"
-						/>
-					{:else}
-						<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
-					{/if}
-					<p class="text-lg tracking-wide text-amber-400 uppercase">
-						Level {displayChar.level} — {displayChar.archetype}
-					</p>
-					{#if displayChar.summary}
-						<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
-					{/if}
-				</div>
-
-				<!-- Edit / Save / Cancel buttons -->
-				<div class="ml-4 flex gap-2">
-					{#if editing}
+			<!-- Action Bar -->
+			<div class="sticky top-0 z-10 -mx-8 mb-6 flex gap-2 border-b border-neutral-700 bg-neutral-900/95 px-8 py-3 backdrop-blur">
+				{#if editing}
+					<button
+						onclick={saveEdits}
+						class="rounded bg-amber-700 px-4 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
+					>
+						Save
+					</button>
+					<button
+						onclick={cancelEditing}
+						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+					>
+						Cancel
+					</button>
+				{:else}
+					<button
+						onclick={startEditing}
+						class="rounded border border-neutral-600 px-4 py-2 text-sm text-neutral-300 transition hover:border-amber-500 hover:text-amber-400"
+					>
+						Edit
+					</button>
+					<button
+						onclick={openNotes}
+						class="rounded border border-neutral-600 px-4 py-2 text-sm text-neutral-300 transition hover:border-amber-500 hover:text-amber-400"
+					>
+						Notes
+					</button>
+					{#if canLevelUp(character)}
 						<button
-							onclick={saveEdits}
-							class="rounded bg-amber-700 px-4 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
-						>
-							Save
-						</button>
-						<button
-							onclick={cancelEditing}
-							class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
-						>
-							Cancel
-						</button>
-					{:else}
-						<button
-							onclick={startEditing}
-							class="rounded border border-neutral-600 px-4 py-2 text-sm text-neutral-300 transition hover:border-amber-500 hover:text-amber-400"
-						>
-							Edit
-						</button>
-					{/if}
-				</div>
-			</div>
-
-			<!-- Level Up -->
-			{#if !editing && canLevelUp(character)}
-				<div class="mb-8">
-					{#if levelUpPending && levelUpResult}
-						<div class="rounded border border-amber-700 bg-amber-900/20 p-5">
-							<h3 class="mb-2 text-lg font-semibold text-amber-400">
-								Level Up to {levelUpResult.character.level}
-							</h3>
-							<p class="mb-1 text-sm text-neutral-400">
-								Gains: {levelUpSummary(levelUpResult.character.level).join(', ')}
-							</p>
-							<p class="mb-4 text-sm text-neutral-300">Choose an attribute to increase:</p>
-							<div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-								{#each ATTRIBUTE_NAMES as attr}
-									{@const canIncrease = canIncreaseAttribute(
-										character,
-										attr,
-										levelUpResult.character.level
-									)}
-									<button
-										onclick={() => confirmLevelUpAttribute(attr)}
-										disabled={!canIncrease}
-										class={`rounded border p-3 text-center transition ${
-											canIncrease
-												? 'border-amber-600 bg-neutral-800 hover:bg-amber-700/30 hover:text-amber-400'
-												: 'cursor-not-allowed border-neutral-700 bg-neutral-800 text-neutral-600'
-										}`}
-									>
-										<div class="text-xs tracking-wide uppercase">
-											{attributeLabels[attr]}
-										</div>
-										<div class="text-2xl font-bold text-amber-400">
-											{character.attributes[attr]}
-										</div>
-										{#if canIncrease}
-											<div class="text-xs text-amber-500">→ {character.attributes[attr] + 1}</div>
-										{:else}
-											<div class="text-xs text-neutral-600">max</div>
-										{/if}
-									</button>
-								{/each}
-							</div>
-							<button
-								onclick={cancelLevelUp}
-								class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
-							>
-								Cancel
-							</button>
-						</div>
-					{:else}
-						<button
-							onclick={startLevelUp}
-							class="rounded border border-amber-700 bg-amber-900/20 px-5 py-3 text-sm font-semibold text-amber-400 transition hover:bg-amber-800/30"
+							onclick={openLevelUp}
+							class="rounded border border-amber-700 bg-amber-900/20 px-4 py-2 text-sm font-semibold text-amber-400 transition hover:bg-amber-800/30"
 						>
 							Level Up → {character.level + 1}
-							<span class="ml-2 text-xs font-normal text-neutral-400">
-								({levelUpSummary(character.level + 1).join(', ')})
-							</span>
 						</button>
 					{/if}
-				</div>
-			{/if}
+				{/if}
+			</div>
 
-			{#if !editing && character.level >= MAX_LEVEL}
-				<div
-					class="mb-8 rounded border border-neutral-700 bg-neutral-800 px-5 py-3 text-sm text-neutral-500 italic"
-				>
-					Maximum level reached.
-				</div>
-			{/if}
+			<!-- Header -->
+			<div class="mb-8">
+				{#if editing}
+					<input
+						type="text"
+						bind:value={draft.name}
+						class="mb-1 w-full border-b-2 border-amber-600 bg-transparent text-4xl font-bold text-neutral-200 outline-none focus:border-amber-400"
+					/>
+				{:else}
+					<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
+				{/if}
+				<p class="text-lg tracking-wide text-amber-400 uppercase">
+					Level {displayChar.level} — {displayChar.archetype}
+				</p>
+				{#if displayChar.summary}
+					<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
+				{/if}
+			</div>
+
+
 
 			<!-- Portrait -->
 			<div class="mb-8 flex items-center gap-6">
@@ -661,6 +624,115 @@
 			</div>
 		</div>
 	</div>
+	<!-- Level Up Modal -->
+	{#if levelUpOpen && levelUpResult && character}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+			onclick={(e) => { if (e.target === e.currentTarget) cancelLevelUp(); }}
+			role="dialog"
+			aria-modal="true"
+			aria-label="Level Up"
+		>
+			<div class="mx-4 w-full max-w-lg rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl">
+				<h2 class="mb-1 text-2xl font-bold text-amber-400">
+					Level Up to {levelUpResult.character.level}
+				</h2>
+				<p class="mb-4 text-sm text-neutral-400">
+					Gains: {levelUpSummary(levelUpResult.character.level).join(', ')}
+				</p>
+
+				{#if levelUpResult.grantsAttribute}
+					<p class="mb-4 text-sm text-neutral-300">Choose an attribute to increase:</p>
+					<div class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+						{#each ATTRIBUTE_NAMES as attr}
+							{@const canIncrease = canIncreaseAttribute(
+								character,
+								attr,
+								levelUpResult.character.level
+							)}
+							<button
+								onclick={() => { if (canIncrease) selectedAttribute = attr; }}
+								disabled={!canIncrease}
+								class={`rounded border p-3 text-center transition ${
+									selectedAttribute === attr
+										? 'border-amber-400 bg-amber-700/30 ring-2 ring-amber-400'
+										: canIncrease
+											? 'border-amber-600 bg-neutral-800 hover:bg-amber-700/20 hover:text-amber-400'
+											: 'cursor-not-allowed border-neutral-700 bg-neutral-800 text-neutral-600'
+								}`}
+							>
+								<div class="text-xs tracking-wide uppercase">
+									{attributeLabels[attr]}
+								</div>
+								<div class="text-2xl font-bold text-amber-400">
+									{character.attributes[attr]}
+								</div>
+								{#if canIncrease}
+									<div class="text-xs text-amber-500">→ {character.attributes[attr] + 1}</div>
+								{:else}
+									<div class="text-xs text-neutral-600">max</div>
+								{/if}
+							</button>
+						{/each}
+					</div>
+				{/if}
+
+				<div class="flex justify-end gap-3">
+					<button
+						onclick={cancelLevelUp}
+						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+					>
+						Cancel
+					</button>
+					<button
+						onclick={confirmLevelUp}
+						disabled={levelUpResult.grantsAttribute && !selectedAttribute}
+						class={`rounded px-4 py-2 text-sm font-semibold transition ${
+							levelUpResult.grantsAttribute && !selectedAttribute
+								? 'cursor-not-allowed bg-neutral-700 text-neutral-500'
+								: 'bg-amber-700 text-black hover:bg-amber-600'
+						}`}
+					>
+						Confirm Level Up
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+	<!-- Notes Modal -->
+	{#if notesOpen && character}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+			onclick={(e) => { if (e.target === e.currentTarget) cancelNotes(); }}
+			role="dialog"
+			aria-modal="true"
+			aria-label="Edit Notes"
+		>
+			<div class="mx-4 flex w-full max-w-lg flex-col rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl">
+				<h2 class="mb-4 text-2xl font-bold text-amber-400">Notes</h2>
+				<textarea
+					bind:value={notesDraft}
+					rows="10"
+					placeholder="Freeform notes, items, secrets…"
+					class="mb-4 w-full flex-1 rounded border border-neutral-600 bg-neutral-800 px-4 py-3 text-neutral-200 placeholder-neutral-600 outline-none focus:border-amber-400"
+				></textarea>
+				<div class="flex justify-end gap-3">
+					<button
+						onclick={cancelNotes}
+						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+					>
+						Cancel
+					</button>
+					<button
+						onclick={saveNotes}
+						class="rounded bg-amber-700 px-4 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
+					>
+						Save Notes
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 {:else}
 	<div class="flex min-h-screen items-center justify-center bg-neutral-900 text-neutral-200">
 		<p class="text-neutral-400">Loading...</p>
