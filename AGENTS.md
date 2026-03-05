@@ -30,7 +30,7 @@ Inspirations: [scvmbirther](https://scvmbirther.makedatanotlore.dev/), [shadowda
 | 12 | Save character to localStorage | **DONE** | Store + import wired up |
 | 13 | Character list page (`/characters`) | **DONE** | Lists preserved characters with summary |
 | 14 | Character sheet page (`/characters/[id]`) | **DONE** | Read-only sheet with all data, archetype feature, Essence Pool |
-| 15 | Editable character sheet (edit name, traits, moves, experiences, attributes) | **NOT DONE** | No editing UI exists |
+| 15 | Editable character sheet (edit name, traits, moves, experiences, attributes) | **DONE** | Edit mode toggle with inline editing for all fields |
 | 16 | Manual level-up (button, levels 1–10) | **NOT DONE** | No leveling logic implemented |
 | 17 | Attribute increase at L1, L3, L5, L7, L9, L10 (cap 3, L10 cap 4, total=10) | **NOT DONE** | |
 | 18 | New move slot at L2, L4, L6, L8, L10 | **NOT DONE** | |
@@ -38,8 +38,8 @@ Inspirations: [scvmbirther](https://scvmbirther.makedatanotlore.dev/), [shadowda
 | 20 | Grit & Sanity increase at L3, L5, L7, L9 (formula: `1 + floor((level-1)/2)`) | **NOT DONE** | |
 | 21 | Wise Essence Pool display (derived: `level + vocation attribute value`) | **DONE** | Shown on character sheet for Wise characters |
 | 22 | Archetype features display (Consequences of Conflict, One of the Best) | **DONE** | Rendered on character sheet page |
-| 23 | Notes/items textarea | **NOT DONE** | `notes` field exists in model but no UI |
-| 24 | Portrait placeholder / image upload | **NOT DONE** | `portrait?` field exists in model but no UI |
+| 23 | Notes/items textarea | **DONE** | Editable textarea in edit mode on character sheet |
+| 24 | Portrait placeholder / image upload | **DONE** | Placeholder with silhouette icon, image display ready |
 | 25 | Dark medieval themed UI with custom fonts | **NOT DONE** | Currently default Tailwind dark. No Cinzel/EB Garamond/rune fonts |
 | 26 | Light/dark mode toggle | **NOT DONE** | Hardcoded dark theme only |
 | 27 | JSON export/import of characters | **NOT DONE** | Nice-to-have per spec |
@@ -61,11 +61,11 @@ None currently.
 5. ~~**Display archetype feature text** (Consequences of Conflict / One of the Best)~~
 6. ~~**Display Wise Essence Pool** as derived value~~
 
-### Phase 2 — Character Sheet Editing
+### Phase 2 — Character Sheet Editing ✅ DONE
 
-7. **Inline editing** for: name, ancestry, vocation, affiliation, moves, experiences, attribute assignments
-8. **Notes textarea** — large editable textarea for freeform notes/items
-9. **Portrait placeholder** — display area with future image upload support
+7. ~~**Inline editing** for: name, ancestry, vocation, affiliation, moves, experiences, attribute assignments~~
+8. ~~**Notes textarea** — large editable textarea for freeform notes/items~~
+9. ~~**Portrait placeholder** — display area with future image upload support~~
 
 ### Phase 3 — Leveling System
 

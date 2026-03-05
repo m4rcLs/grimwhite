@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
+	import {
+		type Character,
+		type AttributeName,
+		type MoveSlot,
+		type Experience,
+		MoveNames
+	} from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { characterStore } from '$lib/stores/characterStore';
 	import { goto } from '$app/navigation';
@@ -9,6 +15,10 @@
 
 	let character: Character | null = $state(null);
 	let notFound = $state(false);
+	let editing = $state(false);
+	let draft: Character | null = $state(null);
+
+	const ATTRIBUTE_NAMES: AttributeName[] = ['brawns', 'agility', 'wits', 'presence'];
 
 	const attributeLabels: Record<AttributeName, string> = {
 		brawns: 'Brawns',
@@ -22,12 +32,32 @@
 			const found = chars.find((c) => c.id === params.id);
 			if (found) {
 				character = found;
+				// Keep draft in sync if not editing
+				if (!editing) draft = JSON.parse(JSON.stringify(found));
 			} else {
 				notFound = true;
 			}
 		});
 		return unsubscribe;
 	});
+
+	function startEditing() {
+		if (!character) return;
+		draft = JSON.parse(JSON.stringify(character));
+		editing = true;
+	}
+
+	function cancelEditing() {
+		if (!character) return;
+		draft = JSON.parse(JSON.stringify(character));
+		editing = false;
+	}
+
+	function saveEdits() {
+		if (!draft) return;
+		characterStore.updateCharacter(draft);
+		editing = false;
+	}
 
 	function getArchetypeFeature(archetype: string) {
 		return ARCHETYPES.find((a) => a.id === archetype)?.feature ?? null;
@@ -38,6 +68,38 @@
 		const vocationAttr = char.vocation.assignedAttributes[0];
 		if (!vocationAttr) return char.level;
 		return char.level + char.attributes[vocationAttr];
+	}
+
+	// Trait attribute editing helpers
+	function toggleTraitAttribute(
+		trait: 'ancestry' | 'vocation' | 'affiliation',
+		attr: AttributeName
+	) {
+		if (!draft) return;
+		let target =
+			trait === 'ancestry'
+				? draft.ancestry
+				: trait === 'vocation'
+					? draft.vocation
+					: draft.affiliations[0];
+		if (!target) return;
+
+		const idx = target.assignedAttributes.indexOf(attr);
+		if (idx >= 0) {
+			target.assignedAttributes = target.assignedAttributes.filter((a) => a !== attr);
+		} else {
+			target.assignedAttributes = [...target.assignedAttributes, attr];
+		}
+	}
+
+	function addExperience() {
+		if (!draft) return;
+		draft.experiences = [...draft.experiences, { name: '' }];
+	}
+
+	function removeExperience(index: number) {
+		if (!draft) return;
+		draft.experiences = draft.experiences.filter((_, i) => i !== index);
 	}
 
 	let confirmingDelete = $state(false);
@@ -59,31 +121,106 @@
 			</a>
 		</div>
 	</div>
-{:else if character}
-	{@const feature = getArchetypeFeature(character.archetype)}
-	{@const essence = essencePool(character)}
+{:else if character && draft}
+	{@const displayChar = editing ? draft : character}
+	{@const feature = getArchetypeFeature(displayChar.archetype)}
+	{@const essence = essencePool(displayChar)}
 
 	<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
 		<div class="mx-auto max-w-4xl">
 			<!-- Header -->
-			<div class="mb-8">
-				<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
-				<p class="text-lg tracking-wide text-amber-400 uppercase">
-					Level {character.level} — {character.archetype}
-				</p>
-				{#if character.summary}
-					<p class="mt-2 text-neutral-400 italic">{character.summary}</p>
-				{/if}
+			<div class="mb-8 flex items-start justify-between">
+				<div class="flex-1">
+					{#if editing}
+						<input
+							type="text"
+							bind:value={draft.name}
+							class="mb-1 w-full border-b-2 border-amber-600 bg-transparent text-4xl font-bold text-neutral-200 outline-none focus:border-amber-400"
+						/>
+					{:else}
+						<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
+					{/if}
+					<p class="text-lg tracking-wide text-amber-400 uppercase">
+						Level {displayChar.level} — {displayChar.archetype}
+					</p>
+					{#if displayChar.summary}
+						<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
+					{/if}
+				</div>
+
+				<!-- Edit / Save / Cancel buttons -->
+				<div class="ml-4 flex gap-2">
+					{#if editing}
+						<button
+							onclick={saveEdits}
+							class="rounded bg-amber-700 px-4 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
+						>
+							Save
+						</button>
+						<button
+							onclick={cancelEditing}
+							class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+						>
+							Cancel
+						</button>
+					{:else}
+						<button
+							onclick={startEditing}
+							class="rounded border border-neutral-600 px-4 py-2 text-sm text-neutral-300 transition hover:border-amber-500 hover:text-amber-400"
+						>
+							Edit
+						</button>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Portrait -->
+			<div class="mb-8 flex items-center gap-6">
+				<div
+					class="flex h-28 w-28 shrink-0 items-center justify-center rounded border border-neutral-700 bg-neutral-800"
+				>
+					{#if displayChar.portrait}
+						<img
+							src={displayChar.portrait}
+							alt={displayChar.name}
+							class="h-full w-full rounded object-cover"
+						/>
+					{:else}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-12 w-12 text-neutral-600"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+						>
+							<path
+								d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+							/>
+						</svg>
+					{/if}
+				</div>
+				<div class="text-sm text-neutral-500">Portrait — image upload coming soon</div>
 			</div>
 
 			<!-- Attributes -->
 			<div class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-				{#each Object.entries(character.attributes) as [key, value]}
+				{#each ATTRIBUTE_NAMES as key}
 					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
 						<div class="text-sm tracking-wide text-neutral-400 uppercase">
-							{attributeLabels[key as AttributeName]}
+							{attributeLabels[key]}
 						</div>
-						<div class="text-3xl font-bold text-amber-400">{value}</div>
+						{#if editing}
+							<input
+								type="number"
+								min="0"
+								max="4"
+								bind:value={draft.attributes[key]}
+								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+							/>
+						{:else}
+							<div class="text-3xl font-bold text-amber-400">
+								{displayChar.attributes[key]}
+							</div>
+						{/if}
 					</div>
 				{/each}
 			</div>
@@ -92,11 +229,29 @@
 			<div class="mb-8 flex flex-wrap gap-6">
 				<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
 					<span class="text-sm text-neutral-400">Grit</span>
-					<span class="ml-2 text-xl font-bold text-amber-400">{character.grit}</span>
+					{#if editing}
+						<input
+							type="number"
+							min="0"
+							bind:value={draft.grit}
+							class="ml-2 w-12 rounded border border-neutral-600 bg-neutral-900 text-center text-xl font-bold text-amber-400 outline-none focus:border-amber-400"
+						/>
+					{:else}
+						<span class="ml-2 text-xl font-bold text-amber-400">{displayChar.grit}</span>
+					{/if}
 				</div>
 				<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
 					<span class="text-sm text-neutral-400">Sanity</span>
-					<span class="ml-2 text-xl font-bold text-amber-400">{character.sanity}</span>
+					{#if editing}
+						<input
+							type="number"
+							min="0"
+							bind:value={draft.sanity}
+							class="ml-2 w-12 rounded border border-neutral-600 bg-neutral-900 text-center text-xl font-bold text-amber-400 outline-none focus:border-amber-400"
+						/>
+					{:else}
+						<span class="ml-2 text-xl font-bold text-amber-400">{displayChar.sanity}</span>
+					{/if}
 				</div>
 				{#if essence !== null}
 					<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
@@ -108,39 +263,108 @@
 
 			<!-- Traits -->
 			<div class="mb-8 space-y-4">
+				<!-- Ancestry -->
 				<div>
 					<div class="font-semibold text-neutral-400">Ancestry</div>
 					<div class="flex items-center gap-3">
-						<span>{character.ancestry.name}</span>
-						{#each character.ancestry.assignedAttributes as attr}
-							<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
-								{attributeLabels[attr]}
-							</span>
-						{/each}
+						{#if editing}
+							<input
+								type="text"
+								bind:value={draft.ancestry.name}
+								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
+							/>
+							<div class="flex gap-1">
+								{#each ATTRIBUTE_NAMES as attr}
+									<button
+										onclick={() => toggleTraitAttribute('ancestry', attr)}
+										class={`rounded px-2 py-1 text-xs uppercase transition ${
+											draft.ancestry.assignedAttributes.includes(attr)
+												? 'bg-amber-800 text-amber-200'
+												: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
+										}`}
+									>
+										{attributeLabels[attr]}
+									</button>
+								{/each}
+							</div>
+						{:else}
+							<span>{displayChar.ancestry.name}</span>
+							{#each displayChar.ancestry.assignedAttributes as attr}
+								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+									{attributeLabels[attr]}
+								</span>
+							{/each}
+						{/if}
 					</div>
 				</div>
 
+				<!-- Vocation -->
 				<div>
 					<div class="font-semibold text-neutral-400">Vocation</div>
 					<div class="flex items-center gap-3">
-						<span>{character.vocation.name}</span>
-						{#each character.vocation.assignedAttributes as attr}
-							<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
-								{attributeLabels[attr]}
-							</span>
-						{/each}
+						{#if editing}
+							<input
+								type="text"
+								bind:value={draft.vocation.name}
+								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
+							/>
+							<div class="flex gap-1">
+								{#each ATTRIBUTE_NAMES as attr}
+									<button
+										onclick={() => toggleTraitAttribute('vocation', attr)}
+										class={`rounded px-2 py-1 text-xs uppercase transition ${
+											draft.vocation.assignedAttributes.includes(attr)
+												? 'bg-amber-800 text-amber-200'
+												: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
+										}`}
+									>
+										{attributeLabels[attr]}
+									</button>
+								{/each}
+							</div>
+						{:else}
+							<span>{displayChar.vocation.name}</span>
+							{#each displayChar.vocation.assignedAttributes as attr}
+								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+									{attributeLabels[attr]}
+								</span>
+							{/each}
+						{/if}
 					</div>
 				</div>
 
+				<!-- Affiliation -->
 				<div>
 					<div class="font-semibold text-neutral-400">Affiliation</div>
 					<div class="flex items-center gap-3">
-						<span>{character.affiliations[0]?.name}</span>
-						{#each character.affiliations[0]?.assignedAttributes ?? [] as attr}
-							<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
-								{attributeLabels[attr]}
-							</span>
-						{/each}
+						{#if editing}
+							<input
+								type="text"
+								bind:value={draft.affiliations[0].name}
+								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
+							/>
+							<div class="flex gap-1">
+								{#each ATTRIBUTE_NAMES as attr}
+									<button
+										onclick={() => toggleTraitAttribute('affiliation', attr)}
+										class={`rounded px-2 py-1 text-xs uppercase transition ${
+											draft.affiliations[0]?.assignedAttributes.includes(attr)
+												? 'bg-amber-800 text-amber-200'
+												: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
+										}`}
+									>
+										{attributeLabels[attr]}
+									</button>
+								{/each}
+							</div>
+						{:else}
+							<span>{displayChar.affiliations[0]?.name}</span>
+							{#each displayChar.affiliations[0]?.assignedAttributes ?? [] as attr}
+								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+									{attributeLabels[attr]}
+								</span>
+							{/each}
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -156,19 +380,19 @@
 			<!-- Moves -->
 			<div class="mb-8">
 				<h3 class="mb-3 text-xl font-semibold text-amber-400">
-					{MoveNames[character.archetype]}
+					{MoveNames[displayChar.archetype]}
 				</h3>
 
 				<div class="space-y-4">
-					{#each character.moves as slot}
+					{#each displayChar.moves as slot, slotIndex}
 						<div class="rounded border border-neutral-700 bg-neutral-900 p-4">
 							<div class="mb-2 text-sm tracking-wide text-neutral-500 uppercase">
 								{slot.type}
 							</div>
 
-							{#each slot.moves as move}
+							{#each slot.moves as move, moveIndex}
 								<div
-									class={`mb-2 rounded px-3 py-2 ${
+									class={`mb-2 flex items-center gap-2 rounded px-3 py-2 ${
 										move.active === true
 											? 'bg-amber-700 text-black'
 											: move.active === false
@@ -176,12 +400,35 @@
 												: 'bg-neutral-800'
 									}`}
 								>
-									{move.name}
-
-									{#if move.active !== undefined}
-										<span class="ml-2 text-xs tracking-wide uppercase">
-											{move.active ? 'Active' : 'Inactive'}
-										</span>
+									{#if editing}
+										<input
+											type="text"
+											bind:value={draft.moves[slotIndex].moves[moveIndex].name}
+											class="flex-1 rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-sm text-neutral-200 outline-none focus:border-amber-400"
+										/>
+										{#if move.active !== undefined}
+											<button
+												onclick={() => {
+													if (!draft) return;
+													draft.moves[slotIndex].moves[moveIndex].active =
+														!draft.moves[slotIndex].moves[moveIndex].active;
+												}}
+												class={`rounded px-2 py-1 text-xs uppercase transition ${
+													draft.moves[slotIndex].moves[moveIndex].active
+														? 'bg-amber-600 text-black'
+														: 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
+												}`}
+											>
+												{draft.moves[slotIndex].moves[moveIndex].active ? 'Active' : 'Inactive'}
+											</button>
+										{/if}
+									{:else}
+										<span class="flex-1">{move.name}</span>
+										{#if move.active !== undefined}
+											<span class="text-xs tracking-wide uppercase">
+												{move.active ? 'Active' : 'Inactive'}
+											</span>
+										{/if}
 									{/if}
 								</div>
 							{/each}
@@ -193,23 +440,70 @@
 			<!-- Experiences -->
 			<div class="mb-8">
 				<h3 class="mb-3 text-xl font-semibold text-amber-400">Experiences</h3>
-				<ul class="list-inside list-disc text-neutral-300">
-					{#each character.experiences as exp}
-						<li>{exp.name}</li>
-					{/each}
-				</ul>
+				{#if editing}
+					<div class="space-y-2">
+						{#each draft.experiences as exp, i}
+							<div class="flex items-center gap-2">
+								<input
+									type="text"
+									bind:value={draft.experiences[i].name}
+									class="flex-1 rounded border border-neutral-600 bg-neutral-900 px-3 py-2 text-neutral-200 outline-none focus:border-amber-400"
+								/>
+								<button
+									onclick={() => removeExperience(i)}
+									class="rounded p-2 text-neutral-600 transition hover:bg-red-900/40 hover:text-red-400"
+									title="Remove experience"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="h-4 w-4"
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"
+										/>
+									</svg>
+								</button>
+							</div>
+						{/each}
+						<button
+							onclick={addExperience}
+							class="rounded border border-dashed border-neutral-600 px-3 py-2 text-sm text-neutral-500 transition hover:border-amber-500 hover:text-amber-400"
+						>
+							+ Add Experience
+						</button>
+					</div>
+				{:else}
+					<ul class="list-inside list-disc text-neutral-300">
+						{#each displayChar.experiences as exp}
+							<li>{exp.name}</li>
+						{/each}
+					</ul>
+				{/if}
 			</div>
 
 			<!-- Notes -->
 			<div class="mb-8">
 				<h3 class="mb-3 text-xl font-semibold text-amber-400">Notes</h3>
-				<p class="whitespace-pre-wrap text-neutral-300">
-					{#if character.notes}
-						{character.notes}
-					{:else}
-						<span class="text-neutral-500 italic">No notes yet.</span>
-					{/if}
-				</p>
+				{#if editing}
+					<textarea
+						bind:value={draft.notes}
+						rows="6"
+						placeholder="Freeform notes, items, secrets…"
+						class="w-full rounded border border-neutral-600 bg-neutral-900 px-4 py-3 text-neutral-200 placeholder-neutral-600 outline-none focus:border-amber-400"
+					></textarea>
+				{:else}
+					<p class="whitespace-pre-wrap text-neutral-300">
+						{#if displayChar.notes}
+							{displayChar.notes}
+						{:else}
+							<span class="text-neutral-500 italic">No notes yet.</span>
+						{/if}
+					</p>
+				{/if}
 			</div>
 
 			<!-- Delete -->
