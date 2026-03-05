@@ -14,6 +14,7 @@
 	import { DEFT_PREFIX, DEFT_SUFFIX } from '$lib/content/moves/deft';
 	import { WISE_PREFIX, WISE_SUFFIX } from '$lib/content/moves/wise';
 	import { characterStore } from '$lib/stores/characterStore';
+	import TiptapEditor from '$lib/components/TiptapEditor.svelte';
 	import {
 		canLevelUp,
 		levelUp,
@@ -1038,20 +1039,18 @@
 			<div class="mb-8">
 				<h3 class="mb-3 text-xl font-semibold text-amber-400">Notes</h3>
 				{#if editing}
-					<textarea
-						bind:value={draft.notes}
-						rows="6"
-						placeholder="Freeform notes, items, secrets…"
-						class="w-full rounded border border-neutral-600 bg-neutral-900 px-4 py-3 text-neutral-200 placeholder-neutral-600 outline-none focus:border-amber-400"
-					></textarea>
+					<TiptapEditor
+						content={draft.notes ?? ''}
+						onupdate={(md) => {
+							if (draft) draft.notes = md;
+						}}
+					/>
+				{:else if displayChar.notes}
+					<div class="prose prose-sm max-w-none prose-invert prose-amber">
+						{@html marked(displayChar.notes)}
+					</div>
 				{:else}
-					<p class="whitespace-pre-wrap text-neutral-300">
-						{#if displayChar.notes}
-							{displayChar.notes}
-						{:else}
-							<span class="text-neutral-500 italic">No notes yet.</span>
-						{/if}
-					</p>
+					<p class="text-neutral-500 italic">No notes yet.</p>
 				{/if}
 			</div>
 
@@ -1277,12 +1276,14 @@
 				class="mx-4 flex w-full max-w-lg flex-col rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
 			>
 				<h2 class="mb-4 text-2xl font-bold text-amber-400">Notes</h2>
-				<textarea
-					bind:value={notesDraft}
-					rows="10"
-					placeholder="Freeform notes, items, secrets…"
-					class="mb-4 w-full flex-1 rounded border border-neutral-600 bg-neutral-800 px-4 py-3 text-neutral-200 placeholder-neutral-600 outline-none focus:border-amber-400"
-				></textarea>
+				<div class="mb-4">
+					<TiptapEditor
+						content={notesDraft}
+						onupdate={(md) => {
+							notesDraft = md;
+						}}
+					/>
+				</div>
 				<div class="flex justify-end gap-3">
 					<button
 						onclick={cancelNotes}
