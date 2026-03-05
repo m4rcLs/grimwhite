@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { marked } from 'marked';
 	import {
 		type Character,
 		type AttributeName,
@@ -490,7 +491,9 @@
 			{#if feature}
 				<div class="mb-8 rounded border border-neutral-700 bg-neutral-800 p-5">
 					<h3 class="mb-2 text-lg font-semibold text-amber-400">{feature.name}</h3>
-					<p class="text-sm whitespace-pre-line text-neutral-300">{feature.description}</p>
+					<div class="prose prose-sm max-w-none prose-invert prose-amber">
+						{@html marked(feature.description)}
+					</div>
 				</div>
 			{/if}
 

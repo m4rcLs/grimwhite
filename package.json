@@ -44,6 +44,7 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
-		"compromise": "^14.15.0"
+		"compromise": "^14.15.0",
+		"marked": "^17.0.4"
 	}
 }
