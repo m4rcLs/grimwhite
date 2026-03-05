@@ -168,6 +168,7 @@ export function levelUpSummary(newLevel: number): string[] {
 	if (levelGrantsAttributeIncrease(newLevel)) parts.push('+1 Attribute');
 	if (levelGrantsNewMoveSlot(newLevel)) parts.push('+1 Move Slot');
 	if (levelGrantsNewExperience(newLevel)) parts.push('+1 Experience');
+	if (newLevel === 5) parts.push('Gain Attribute Marks & 2 Spark');
 
 	const gs = calculateGritSanity(newLevel);
 	const prevGs = calculateGritSanity(newLevel - 1);

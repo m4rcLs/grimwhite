@@ -190,6 +190,38 @@
 	function cancelNotes() {
 		notesOpen = false;
 	}
+
+	function toggleMarkedAttribute(attr: AttributeName) {
+		if (editing && draft) {
+			const marks = draft.markedAttributes ?? [];
+			draft.markedAttributes = marks.includes(attr)
+				? marks.filter((a) => a !== attr)
+				: [...marks, attr];
+		} else if (character) {
+			const marks = character.markedAttributes ?? [];
+			characterStore.updateCharacter({
+				...character,
+				markedAttributes: marks.includes(attr)
+					? marks.filter((a) => a !== attr)
+					: [...marks, attr]
+			});
+		}
+	}
+
+	function toggleSpark(index: 0 | 1) {
+		if (editing && draft) {
+			const spark: [boolean, boolean] = [...(draft.spark ?? [false, false])] as [boolean, boolean];
+			spark[index] = !spark[index];
+			draft.spark = spark;
+		} else if (character) {
+			const spark: [boolean, boolean] = [...(character.spark ?? [false, false])] as [
+				boolean,
+				boolean
+			];
+			spark[index] = !spark[index];
+			characterStore.updateCharacter({ ...character, spark });
+		}
+	}
 </script>
 
 {#if notFound}
@@ -324,6 +356,17 @@
 								{displayChar.attributes.brawns}
 							</div>
 						{/if}
+						{#if displayChar.level >= 5}
+							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
+								<input
+									type="checkbox"
+									checked={(displayChar.markedAttributes ?? []).includes('brawns')}
+									onchange={() => toggleMarkedAttribute('brawns')}
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+								/>
+								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+							</label>
+						{/if}
 					</div>
 					<!-- Agility -->
 					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
@@ -342,6 +385,17 @@
 							<div class="text-3xl font-bold text-amber-400">
 								{displayChar.attributes.agility}
 							</div>
+						{/if}
+						{#if displayChar.level >= 5}
+							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
+								<input
+									type="checkbox"
+									checked={(displayChar.markedAttributes ?? []).includes('agility')}
+									onchange={() => toggleMarkedAttribute('agility')}
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+								/>
+								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+							</label>
 						{/if}
 					</div>
 					<!-- Spacer (desktop only) -->
@@ -364,6 +418,17 @@
 								{displayChar.attributes.wits}
 							</div>
 						{/if}
+						{#if displayChar.level >= 5}
+							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
+								<input
+									type="checkbox"
+									checked={(displayChar.markedAttributes ?? []).includes('wits')}
+									onchange={() => toggleMarkedAttribute('wits')}
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+								/>
+								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+							</label>
+						{/if}
 					</div>
 					<!-- Presence -->
 					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
@@ -382,6 +447,17 @@
 							<div class="text-3xl font-bold text-amber-400">
 								{displayChar.attributes.presence}
 							</div>
+						{/if}
+						{#if displayChar.level >= 5}
+							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
+								<input
+									type="checkbox"
+									checked={(displayChar.markedAttributes ?? []).includes('presence')}
+									onchange={() => toggleMarkedAttribute('presence')}
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+								/>
+								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+							</label>
 						{/if}
 					</div>
 
@@ -438,6 +514,25 @@
 							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
 						</div>
 					</div>
+
+					<!-- Spark row: full width, level 5+ only -->
+					{#if displayChar.level >= 5}
+						<div class="col-span-2 flex flex-col items-center pt-3 md:col-span-5">
+							<div class="flex items-center gap-3">
+								<span class="text-xs font-semibold tracking-wide text-yellow-400 uppercase">Spark</span>
+								{#each [0, 1] as i}
+									<label class="cursor-pointer">
+										<input
+											type="checkbox"
+											checked={(displayChar.spark ?? [false, false])[i]}
+											onchange={() => toggleSpark(i as 0 | 1)}
+											class="h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-yellow-500 bg-neutral-900 transition checked:bg-yellow-500"
+										/>
+									</label>
+								{/each}
+							</div>
+						</div>
+					{/if}
 				</div>
 			</div>
 

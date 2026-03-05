@@ -170,6 +170,8 @@ export function generateCharacter(): Character {
 		notes: '',
 		bloodied: false,
 		rattled: false,
+		markedAttributes: [],
+		spark: [false, false],
 		createdAt: Date.now()
 	};
 

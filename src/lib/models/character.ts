@@ -41,6 +41,8 @@ export interface Character {
 	sanity: number;
 	bloodied: boolean;
 	rattled: boolean;
+	markedAttributes: AttributeName[];
+	spark: [boolean, boolean];
 
 	ancestry: Trait;
 	vocation: Trait;
