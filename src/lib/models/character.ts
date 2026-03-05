@@ -50,6 +50,7 @@ export interface Character {
 
 	experiences: Experience[];
 	moves: MoveSlot[];
+	essence?: {max: number, current: number}
 
 	xp: number;
 	notes: string;

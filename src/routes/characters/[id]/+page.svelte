@@ -33,6 +33,24 @@
 	let character: Character | null = $state(null);
 	let notFound = $state(false);
 	let editing = $state(false);
+	let currentEssence = $state(0);
+	let maxEssence = $derived.by(() => {
+		const char = editing ? draft : character;
+		console.log({ char });
+		if (char?.archetype !== 'wise') return;
+		const vocationAttr = char.vocation.assignedAttributes[0];
+		let max = char.level + (char.attributes[vocationAttr] ?? 0);
+		return max;
+	});
+	$effect(() => console.log({ maxEssence }));
+
+	$effect(() => {
+		const newEssence = Math.min(currentEssence, maxEssence ?? 0);
+		console.log({ newEssence });
+		if (newEssence >= currentEssence) return;
+		currentEssence = newEssence;
+	});
+
 	let draft: Character | null = $state(null);
 
 	const ATTRIBUTE_NAMES: AttributeName[] = ['brawns', 'agility', 'wits', 'presence'];
@@ -57,6 +75,7 @@
 			if (found) {
 				character = found;
 				untrack(() => {
+					currentEssence = character?.essence?.current ?? 0;
 					if (!editing) draft = JSON.parse(JSON.stringify(found));
 				});
 			} else {
@@ -80,19 +99,13 @@
 
 	function saveEdits() {
 		if (!draft) return;
+		draft.essence = { max: maxEssence ?? 0, current: currentEssence ?? 0 };
 		characterStore.updateCharacter(draft);
 		editing = false;
 	}
 
 	function getArchetypeFeature(archetype: string) {
 		return ARCHETYPES.find((a) => a.id === archetype)?.feature ?? null;
-	}
-
-	function essencePool(char: Character): number | null {
-		if (char.archetype !== 'wise') return null;
-		const vocationAttr = char.vocation.assignedAttributes[0];
-		if (!vocationAttr) return char.level;
-		return char.level + char.attributes[vocationAttr];
 	}
 
 	const TRAIT_ATTRIBUTE_LIMITS: Record<string, number> = {
@@ -446,7 +459,6 @@
 {:else if character && draft}
 	{@const displayChar = editing ? draft : character}
 	{@const feature = getArchetypeFeature(displayChar.archetype)}
-	{@const essence = essencePool(displayChar)}
 
 	<div class="min-h-screen p-8" style="color: var(--text-primary);">
 		<div class="mx-auto max-w-4xl">
@@ -935,7 +947,7 @@
 							type="number"
 							min="0"
 							bind:value={draft.grit}
-							class="ml-2 w-12 rounded border bg-transparent text-center text-xl font-bold outline-none"
+							class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
 							style="border-color: var(--border-color); color: var(--color-gold);"
 						/>
 					{:else}
@@ -957,7 +969,7 @@
 							type="number"
 							min="0"
 							bind:value={draft.sanity}
-							class="ml-2 w-12 rounded border bg-transparent text-center text-xl font-bold outline-none"
+							class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
 							style="border-color: var(--border-color); color: var(--color-gold);"
 						/>
 					{:else}
@@ -966,17 +978,29 @@
 						>
 					{/if}
 				</div>
-				{#if essence !== null}
+				{#if maxEssence && maxEssence > 0}
 					<div
 						class="rounded px-5 py-3"
 						style="background: var(--bg-surface); border: 1px solid var(--border-color);"
 					>
 						<span
 							class="text-sm"
-							style="color: var(--text-secondary); font-family: var(--font-heading);"
-							>Essence Pool</span
+							style="color: var(--text-secondary); font-family: var(--font-heading);">Essence</span
 						>
-						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);">{essence}</span>
+
+						{#if editing && maxEssence > 0}
+							<input
+								type="number"
+								min="0"
+								bind:value={currentEssence}
+								class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
+								style="border-color: var(--border-color); color: var(--color-gold);"
+							/>
+						{:else}
+							<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
+								>{currentEssence}/{maxEssence}</span
+							>
+						{/if}
 					</div>
 				{/if}
 			</div>
