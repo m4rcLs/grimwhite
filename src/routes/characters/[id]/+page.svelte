@@ -196,7 +196,9 @@
 	<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
 		<div class="mx-auto max-w-4xl">
 			<!-- Action Bar -->
-			<div class="sticky top-0 z-10 -mx-8 mb-6 flex gap-2 border-b border-neutral-700 bg-neutral-900/95 px-8 py-3 backdrop-blur">
+			<div
+				class="sticky top-0 z-10 -mx-8 mb-6 flex gap-2 border-b border-neutral-700 bg-neutral-900/95 px-8 py-3 backdrop-blur"
+			>
 				{#if editing}
 					<button
 						onclick={saveEdits}
@@ -248,12 +250,17 @@
 				<p class="text-lg tracking-wide text-amber-400 uppercase">
 					Level {displayChar.level} — {displayChar.archetype}
 				</p>
-				{#if displayChar.summary}
+				{#if editing}
+					<input
+						type="text"
+						bind:value={draft.summary}
+						placeholder="One-line summary…"
+						class="mt-2 w-full border-b border-neutral-600 bg-transparent text-neutral-400 italic outline-none focus:border-amber-400"
+					/>
+				{:else if displayChar.summary}
 					<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
 				{/if}
 			</div>
-
-
 
 			<!-- Portrait -->
 			<div class="mb-8 flex items-center gap-6">
@@ -628,12 +635,16 @@
 	{#if levelUpOpen && levelUpResult && character}
 		<div
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-			onclick={(e) => { if (e.target === e.currentTarget) cancelLevelUp(); }}
+			onclick={(e) => {
+				if (e.target === e.currentTarget) cancelLevelUp();
+			}}
 			role="dialog"
 			aria-modal="true"
 			aria-label="Level Up"
 		>
-			<div class="mx-4 w-full max-w-lg rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl">
+			<div
+				class="mx-4 w-full max-w-lg rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
+			>
 				<h2 class="mb-1 text-2xl font-bold text-amber-400">
 					Level Up to {levelUpResult.character.level}
 				</h2>
@@ -651,7 +662,9 @@
 								levelUpResult.character.level
 							)}
 							<button
-								onclick={() => { if (canIncrease) selectedAttribute = attr; }}
+								onclick={() => {
+									if (canIncrease) selectedAttribute = attr;
+								}}
 								disabled={!canIncrease}
 								class={`rounded border p-3 text-center transition ${
 									selectedAttribute === attr
@@ -703,12 +716,16 @@
 	{#if notesOpen && character}
 		<div
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-			onclick={(e) => { if (e.target === e.currentTarget) cancelNotes(); }}
+			onclick={(e) => {
+				if (e.target === e.currentTarget) cancelNotes();
+			}}
 			role="dialog"
 			aria-modal="true"
 			aria-label="Edit Notes"
 		>
-			<div class="mx-4 flex w-full max-w-lg flex-col rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl">
+			<div
+				class="mx-4 flex w-full max-w-lg flex-col rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
+			>
 				<h2 class="mb-4 text-2xl font-bold text-amber-400">Notes</h2>
 				<textarea
 					bind:value={notesDraft}
