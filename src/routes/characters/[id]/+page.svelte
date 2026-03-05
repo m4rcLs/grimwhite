@@ -418,8 +418,14 @@
 											<button
 												onclick={() => {
 													if (!draft) return;
-													draft.moves[slotIndex].moves[moveIndex].active =
-														!draft.moves[slotIndex].moves[moveIndex].active;
+													const activating = !draft.moves[slotIndex].moves[moveIndex].active;
+													if (activating) {
+														// Deactivate all other moves in this slot
+														for (const m of draft.moves[slotIndex].moves) {
+															m.active = false;
+														}
+													}
+													draft.moves[slotIndex].moves[moveIndex].active = activating;
 												}}
 												class={`rounded px-2 py-1 text-xs uppercase transition ${
 													draft.moves[slotIndex].moves[moveIndex].active
