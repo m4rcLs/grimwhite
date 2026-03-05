@@ -3,7 +3,8 @@ import type { TableEntry } from "../moves/miracles/tables";
 export const EFFECT: TableEntry[] = [
     "Absorbing ", "Infecting",
     "Accelerating ", "Intoxicating",
-    { table: "activity" }, "Irradiating",
+    // replacing activity
+    "Activating", "Irradiating",
     "Amusing ", "Irritating",
     "Animating ", "Levitating",
     "Armoring ", "Liquefying",
