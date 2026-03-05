@@ -1231,8 +1231,6 @@
 					<p class="italic" style="color: var(--text-muted);">No notes yet.</p>
 				{/if}
 			</div>
-
-
 		</div>
 	</div>
 	<!-- Level Up Modal -->
