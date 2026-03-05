@@ -422,6 +422,13 @@
 		if (char.level >= MAX_LEVEL) return null;
 		return XP_THRESHOLDS[char.level + 1] ?? null;
 	}
+
+	function fillXpToNextLevel() {
+		if (!character) return;
+		const needed = xpForNextLevel(character);
+		if (needed === null) return;
+		characterStore.updateCharacter({ ...character, xp: needed });
+	}
 </script>
 
 {#if notFound}
@@ -607,21 +614,8 @@
 					>
 						XP
 					</span>
-					<span
-						class="text-2xl font-bold"
-						style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-					>
-						{character.xp ?? 0}
-					</span>
-					{#if xpForNextLevel(displayChar) !== null}
-						<span class="text-xs" style="color: var(--text-muted);">
-							/ {xpForNextLevel(displayChar)}
-						</span>
-					{:else}
-						<span class="text-xs" style="color: var(--text-muted);">MAX</span>
-					{/if}
-					{#if !editing}
-						<div class="mt-1 flex gap-1">
+					<div class="flex items-center gap-2">
+						{#if !editing}
 							<button
 								onclick={() => adjustXp(-1)}
 								class="flex h-6 w-6 items-center justify-center rounded text-sm font-bold transition hover:opacity-80"
@@ -630,6 +624,14 @@
 							>
 								−
 							</button>
+						{/if}
+						<span
+							class="text-2xl font-bold"
+							style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+						>
+							{character.xp ?? 0}
+						</span>
+						{#if !editing}
 							<button
 								onclick={() => adjustXp(1)}
 								class="flex h-6 w-6 items-center justify-center rounded text-sm font-bold transition hover:opacity-80"
@@ -637,7 +639,24 @@
 							>
 								+
 							</button>
-						</div>
+						{/if}
+					</div>
+					{#if xpForNextLevel(displayChar) !== null}
+						<span class="text-xs" style="color: var(--text-muted);">
+							/ {xpForNextLevel(displayChar)}
+						</span>
+					{:else}
+						<span class="text-xs" style="color: var(--text-muted);">MAX</span>
+					{/if}
+					{#if !editing && xpForNextLevel(displayChar) !== null && (character.xp ?? 0) < (xpForNextLevel(displayChar) ?? 0)}
+						<button
+							onclick={fillXpToNextLevel}
+							class="mt-1 flex h-6 items-center justify-center rounded px-1.5 text-xs font-bold transition hover:opacity-80"
+							style="background-color: var(--bg-elevated); color: var(--color-gold); border: 1px solid var(--border-color);"
+							title="Fill XP to next level threshold"
+						>
+							⇈
+						</button>
 					{/if}
 				</div>
 			</div>
