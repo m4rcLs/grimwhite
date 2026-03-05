@@ -51,6 +51,7 @@ export interface Character {
 	experiences: Experience[];
 	moves: MoveSlot[];
 
+	xp: number;
 	notes: string;
 	portrait?: string;
 	summary?: string;

@@ -24,6 +24,20 @@ export const LEVEL_10_ATTRIBUTE_TOTAL = 10;
 /** Max character level */
 export const MAX_LEVEL = 10;
 
+/** Total XP required to reach each level */
+export const XP_THRESHOLDS: Record<number, number> = {
+	1: 0,
+	2: 10,
+	3: 25,
+	4: 50,
+	5: 85,
+	6: 90,
+	7: 105,
+	8: 115,
+	9: 140,
+	10: 170
+};
+
 // --- Derived stat formulas ---
 
 /** Grit & Sanity = 1 + floor((level - 1) / 2) */
@@ -34,7 +48,10 @@ export function calculateGritSanity(level: number): number {
 // --- Level-up checks ---
 
 export function canLevelUp(character: Character): boolean {
-	return character.level < MAX_LEVEL;
+	if (character.level >= MAX_LEVEL) return false;
+	const xp = character.xp ?? 0;
+	const needed = XP_THRESHOLDS[character.level + 1] ?? Infinity;
+	return xp >= needed;
 }
 
 export function levelGrantsAttributeIncrease(level: number): boolean {

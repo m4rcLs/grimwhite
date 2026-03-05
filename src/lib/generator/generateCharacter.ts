@@ -167,6 +167,7 @@ export function generateCharacter(): Character {
 		],
 		experiences,
 		moves,
+		xp: 0,
 		notes: '',
 		bloodied: false,
 		rattled: false,

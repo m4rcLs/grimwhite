@@ -22,7 +22,8 @@
 		levelUpSummary,
 		levelGrantsAttributeIncrease,
 		canIncreaseAttribute,
-		MAX_LEVEL
+		MAX_LEVEL,
+		XP_THRESHOLDS
 	} from '$lib/generator/leveling';
 	import { goto } from '$app/navigation';
 	import { untrack } from 'svelte';
@@ -409,6 +410,18 @@
 			characterStore.updateCharacter({ ...character, spark });
 		}
 	}
+
+	function adjustXp(delta: number) {
+		if (!character) return;
+		const current = character.xp ?? 0;
+		const newXp = Math.max(0, current + delta);
+		characterStore.updateCharacter({ ...character, xp: newXp });
+	}
+
+	function xpForNextLevel(char: Character): number | null {
+		if (char.level >= MAX_LEVEL) return null;
+		return XP_THRESHOLDS[char.level + 1] ?? null;
+	}
 </script>
 
 {#if notFound}
@@ -580,6 +593,51 @@
 						/>
 					{:else if displayChar.summary}
 						<p class="mt-2 italic" style="color: var(--text-secondary);">{displayChar.summary}</p>
+					{/if}
+				</div>
+
+				<!-- XP Tracker -->
+				<div
+					class="flex shrink-0 flex-col items-center gap-1 rounded-lg border p-3"
+					style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border-color: var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), 0 2px 8px rgba(0,0,0,0.2);"
+				>
+					<span
+						class="text-xs font-semibold tracking-widest uppercase"
+						style="font-family: var(--font-heading); color: var(--text-secondary);"
+					>
+						XP
+					</span>
+					<span
+						class="text-2xl font-bold"
+						style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+					>
+						{character.xp ?? 0}
+					</span>
+					{#if xpForNextLevel(displayChar) !== null}
+						<span class="text-xs" style="color: var(--text-muted);">
+							/ {xpForNextLevel(displayChar)}
+						</span>
+					{:else}
+						<span class="text-xs" style="color: var(--text-muted);">MAX</span>
+					{/if}
+					{#if !editing}
+						<div class="mt-1 flex gap-1">
+							<button
+								onclick={() => adjustXp(-1)}
+								class="flex h-6 w-6 items-center justify-center rounded text-sm font-bold transition hover:opacity-80"
+								style="background-color: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-color);"
+								disabled={(character.xp ?? 0) <= 0}
+							>
+								−
+							</button>
+							<button
+								onclick={() => adjustXp(1)}
+								class="flex h-6 w-6 items-center justify-center rounded text-sm font-bold transition hover:opacity-80"
+								style="background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark)); color: var(--bg-base);"
+							>
+								+
+							</button>
+						</div>
 					{/if}
 				</div>
 			</div>
