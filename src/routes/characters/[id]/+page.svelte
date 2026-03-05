@@ -1046,7 +1046,7 @@
 					>
 						{feature.name}
 					</h3>
-					<div class="prose prose-sm max-w-none prose-invert prose-amber">
+					<div class="prose prose-sm max-w-none">
 						{@html marked(feature.description)}
 					</div>
 				</div>
@@ -1195,7 +1195,7 @@
 						}}
 					/>
 				{:else if displayChar.notes}
-					<div class="prose prose-sm max-w-none prose-invert prose-amber">
+					<div class="prose prose-sm max-w-none">
 						{@html marked(displayChar.notes)}
 					</div>
 				{:else}

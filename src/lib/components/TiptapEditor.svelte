@@ -31,8 +31,7 @@
 			content,
 			editorProps: {
 				attributes: {
-					class:
-						'prose prose-sm prose-invert prose-amber max-w-none focus:outline-none min-h-[200px] px-4 py-3'
+					class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] px-4 py-3'
 				}
 			},
 			onUpdate: ({ editor: e }) => {

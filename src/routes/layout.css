@@ -81,3 +81,21 @@ h6 {
 .font-title {
 	font-family: var(--font-title);
 }
+
+/* Prose typography follows theme */
+.prose {
+	--tw-prose-body: var(--text-primary);
+	--tw-prose-headings: var(--color-gold);
+	--tw-prose-links: var(--color-gold);
+	--tw-prose-bold: var(--text-primary);
+	--tw-prose-counters: var(--text-secondary);
+	--tw-prose-bullets: var(--text-secondary);
+	--tw-prose-hr: var(--border-color);
+	--tw-prose-quotes: var(--text-secondary);
+	--tw-prose-quote-borders: var(--color-gold-dark);
+	--tw-prose-code: var(--color-gold);
+	--tw-prose-pre-bg: var(--bg-elevated);
+	--tw-prose-pre-code: var(--text-primary);
+	--tw-prose-th-borders: var(--border-color);
+	--tw-prose-td-borders: var(--border-color);
+}
