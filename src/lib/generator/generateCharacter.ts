@@ -14,7 +14,7 @@ import { ANCESTRIES, ancestryAsTrait, type Ancestry } from '../content/ancestrie
 import { VOCATIONS } from '../content/vocations';
 import { AFFILIATIONS } from '../content/affiliations';
 
-import { STRONG_PREFIX, STRONG_SUFFIX } from '../content/moves/strong';
+import { STRONG_PREFIX, STRONG_SUFFIX, STRONG_WEAPON } from '../content/moves/strong';
 import { DEFT_PREFIX, DEFT_SUFFIX } from '../content/moves/deft';
 import { WISE_PREFIX, WISE_SUFFIX } from '../content/moves/wise';
 
@@ -39,7 +39,10 @@ function assignRandomAttributes(count: number): AttributeName[] {
 	return randomUnique(ATTRIBUTES, count);
 }
 
-function generateMoveName(prefix: string[], suffix: string[]) {
+function generateMoveName(prefix: string[], suffix: string[], weapon?: string[]) {
+	if (weapon && Math.random() < 0.4) {
+		return `${randomFrom(prefix)} ${randomFrom(weapon)} ${randomFrom(suffix)}`;
+	}
 	return `${randomFrom(prefix)} ${randomFrom(suffix)}`;
 }
 
@@ -51,7 +54,7 @@ function generateMoveSlot(archetype: Archetype) {
 			moves: [
 				{
 					id: generateId(),
-					name: generateMoveName(STRONG_PREFIX, STRONG_SUFFIX)
+					name: generateMoveName(STRONG_PREFIX, STRONG_SUFFIX, STRONG_WEAPON)
 				}
 			]
 		};

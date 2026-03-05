@@ -11,7 +11,24 @@ export const STRONG_PREFIX = [
 	'Precise',
 	'Rapid',
 	'Brutal',
-	'Heroic'
+	'Heroic',
+	'Savage',
+	'Thundering',
+	'Devastating',
+	'Merciless',
+	'Reckless',
+	'Punishing',
+	'Colossal',
+	'Whirling',
+	'Frenzied',
+	'Staggering',
+	'Ruinous',
+	'Defiant',
+	'Piercing',
+	'Vengeful',
+	'Furious',
+	'Splintering',
+	'Pulverizing'
 ];
 export const STRONG_WEAPON = [
 	'Mace',
@@ -31,7 +48,20 @@ export const STRONG_WEAPON = [
 	'Javelin',
 	'Scythe',
 	'Staff',
-	'Hammer'
+	'Hammer',
+	'Maul',
+	'Pike',
+	'Cleaver',
+	'Morningstar',
+	'Warhammer',
+	'Greataxe',
+	'Spear',
+	'Trident',
+	'Cestus',
+	'Falchion',
+	'Lance',
+	'Cudgel',
+	'Gauntlet'
 ];
 export const STRONG_SUFFIX = [
 	'Strike',
@@ -43,5 +73,19 @@ export const STRONG_SUFFIX = [
 	'Sweep',
 	'Shove',
 	'Throw',
-	'Flourish'
+	'Flourish',
+	'Slam',
+	'Barrage',
+	'Onslaught',
+	'Rend',
+	'Crash',
+	'Smash',
+	'Bash',
+	'Lunge',
+	'Breaker',
+	'Rampage',
+	'Riposte',
+	'Volley',
+	'Assault',
+	'Impact'
 ];
