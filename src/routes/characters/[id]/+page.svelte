@@ -8,6 +8,7 @@
 		MoveNames
 	} from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
+	import { ANCESTRIES } from '$lib/content/ancestries';
 	import { characterStore } from '$lib/stores/characterStore';
 	import {
 		canLevelUp,
@@ -88,6 +89,17 @@
 		return char.level + char.attributes[vocationAttr];
 	}
 
+	const TRAIT_ATTRIBUTE_LIMITS: Record<string, number> = {
+		ancestry: 2,
+		vocation: 1,
+		affiliation: 1
+	};
+
+	function getAncestryAttributeLimit(name: string): number {
+		const found = ANCESTRIES.find((a) => a.name === name);
+		return found?.attributeCount ?? 2;
+	}
+
 	// Trait attribute editing helpers
 	function toggleTraitAttribute(
 		trait: 'ancestry' | 'vocation' | 'affiliation',
@@ -102,10 +114,12 @@
 					: draft.affiliations[0];
 		if (!target) return;
 
+		const max =
+			trait === 'ancestry' ? getAncestryAttributeLimit(target.name) : TRAIT_ATTRIBUTE_LIMITS[trait];
 		const idx = target.assignedAttributes.indexOf(attr);
 		if (idx >= 0) {
 			target.assignedAttributes = target.assignedAttributes.filter((a) => a !== attr);
-		} else {
+		} else if (target.assignedAttributes.length < max) {
 			target.assignedAttributes = [...target.assignedAttributes, attr];
 		}
 	}
@@ -361,20 +375,27 @@
 								bind:value={draft.ancestry.name}
 								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
 							/>
-							<div class="flex gap-1">
-								{#each ATTRIBUTE_NAMES as attr}
-									<button
-										onclick={() => toggleTraitAttribute('ancestry', attr)}
-										class={`rounded px-2 py-1 text-xs uppercase transition ${
-											draft.ancestry.assignedAttributes.includes(attr)
-												? 'bg-amber-800 text-amber-200'
-												: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
-										}`}
-									>
-										{attributeLabels[attr]}
-									</button>
-								{/each}
-							</div>
+							{@const ancestryLimit = getAncestryAttributeLimit(draft.ancestry.name)}
+							{#if ancestryLimit === 0}
+								<span class="text-xs text-neutral-500 italic">No attribute bonuses</span>
+							{:else}
+								<div class="flex gap-1">
+									{#each ATTRIBUTE_NAMES as attr}
+										<button
+											onclick={() => toggleTraitAttribute('ancestry', attr)}
+											class={`rounded px-2 py-1 text-xs uppercase transition ${
+												draft.ancestry.assignedAttributes.includes(attr)
+													? 'bg-amber-800 text-amber-200'
+													: draft.ancestry.assignedAttributes.length >= ancestryLimit
+														? 'cursor-not-allowed bg-neutral-800 text-neutral-600'
+														: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
+											}`}
+										>
+											{attributeLabels[attr]}
+										</button>
+									{/each}
+								</div>
+							{/if}
 						{:else}
 							<span>{displayChar.ancestry.name}</span>
 							{#each displayChar.ancestry.assignedAttributes as attr}
@@ -396,27 +417,38 @@
 								bind:value={draft.vocation.name}
 								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
 							/>
-							<div class="flex gap-1">
-								{#each ATTRIBUTE_NAMES as attr}
-									<button
-										onclick={() => toggleTraitAttribute('vocation', attr)}
-										class={`rounded px-2 py-1 text-xs uppercase transition ${
-											draft.vocation.assignedAttributes.includes(attr)
-												? 'bg-amber-800 text-amber-200'
-												: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
-										}`}
-									>
-										{attributeLabels[attr]}
-									</button>
-								{/each}
-							</div>
+							{#if draft.archetype === 'deft'}
+								<span class="text-xs text-neutral-500 italic">Applies to any attribute</span>
+							{:else}
+								<div class="flex gap-1">
+									{#each ATTRIBUTE_NAMES as attr}
+										<button
+											onclick={() => toggleTraitAttribute('vocation', attr)}
+											class={`rounded px-2 py-1 text-xs uppercase transition ${
+												draft.vocation.assignedAttributes.includes(attr)
+													? 'bg-amber-800 text-amber-200'
+													: draft.vocation.assignedAttributes.length >=
+														  TRAIT_ATTRIBUTE_LIMITS.vocation
+														? 'cursor-not-allowed bg-neutral-800 text-neutral-600'
+														: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
+											}`}
+										>
+											{attributeLabels[attr]}
+										</button>
+									{/each}
+								</div>
+							{/if}
 						{:else}
 							<span>{displayChar.vocation.name}</span>
-							{#each displayChar.vocation.assignedAttributes as attr}
-								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
-									{attributeLabels[attr]}
-								</span>
-							{/each}
+							{#if displayChar.archetype === 'deft'}
+								<span class="text-xs text-neutral-500 italic">Applies to any attribute</span>
+							{:else}
+								{#each displayChar.vocation.assignedAttributes as attr}
+									<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+										{attributeLabels[attr]}
+									</span>
+								{/each}
+							{/if}
 						{/if}
 					</div>
 				</div>
@@ -438,7 +470,10 @@
 										class={`rounded px-2 py-1 text-xs uppercase transition ${
 											draft.affiliations[0]?.assignedAttributes.includes(attr)
 												? 'bg-amber-800 text-amber-200'
-												: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
+												: (draft.affiliations[0]?.assignedAttributes.length ?? 0) >=
+													  TRAIT_ATTRIBUTE_LIMITS.affiliation
+													? 'cursor-not-allowed bg-neutral-800 text-neutral-600'
+													: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
 										}`}
 									>
 										{attributeLabels[attr]}
