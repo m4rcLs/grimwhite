@@ -9,6 +9,10 @@
 	} from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { ANCESTRIES } from '$lib/content/ancestries';
+	import { EXPERIENCES } from '$lib/content/experiences';
+	import { STRONG_PREFIX, STRONG_SUFFIX } from '$lib/content/moves/strong';
+	import { DEFT_PREFIX, DEFT_SUFFIX } from '$lib/content/moves/deft';
+	import { WISE_PREFIX, WISE_SUFFIX } from '$lib/content/moves/wise';
 	import { characterStore } from '$lib/stores/characterStore';
 	import {
 		canLevelUp,
@@ -175,6 +179,62 @@
 		selectedAttribute = null;
 	}
 
+	function randomFrom<T>(arr: T[]): T {
+		return arr[Math.floor(Math.random() * arr.length)];
+	}
+
+	function randomMoveName(archetype: string): string {
+		if (archetype === 'strong') return `${randomFrom(STRONG_PREFIX)} ${randomFrom(STRONG_SUFFIX)}`;
+		if (archetype === 'deft') return `${randomFrom(DEFT_PREFIX)} ${randomFrom(DEFT_SUFFIX)}`;
+		return `${randomFrom(WISE_PREFIX)} ${randomFrom(WISE_SUFFIX)}`;
+	}
+
+	function randomLevelUp() {
+		if (!levelUpResult || !character) return;
+		let updated = JSON.parse(JSON.stringify(levelUpResult.character)) as Character;
+
+		// Random attribute
+		if (levelUpResult.grantsAttribute) {
+			const eligible = ATTRIBUTE_NAMES.filter((a) =>
+				canIncreaseAttribute(character!, a, updated.level)
+			);
+			if (eligible.length > 0) {
+				updated = applyAttributeIncrease(updated, randomFrom(eligible));
+			}
+		}
+
+		// Random experience names for new slots
+		if (levelUpResult.grantsExperience) {
+			const existing = new Set(character.experiences.map((e) => e.name));
+			for (let i = 0; i < updated.experiences.length; i++) {
+				if (updated.experiences[i].name === '(new experience)') {
+					const available = EXPERIENCES.filter((e) => !existing.has(e));
+					if (available.length > 0) {
+						const picked = randomFrom(available);
+						updated.experiences[i] = { name: picked };
+						existing.add(picked);
+					}
+				}
+			}
+		}
+
+		// Random move names for new slots
+		if (levelUpResult.grantsMoveSlot) {
+			for (const slot of updated.moves) {
+				for (const move of slot.moves) {
+					if (move.name.startsWith('(new ')) {
+						move.name = randomMoveName(updated.archetype);
+					}
+				}
+			}
+		}
+
+		characterStore.updateCharacter(updated);
+		levelUpOpen = false;
+		levelUpResult = null;
+		selectedAttribute = null;
+	}
+
 	function openNotes() {
 		if (!character) return;
 		notesDraft = character.notes ?? '';
@@ -201,9 +261,7 @@
 			const marks = character.markedAttributes ?? [];
 			characterStore.updateCharacter({
 				...character,
-				markedAttributes: marks.includes(attr)
-					? marks.filter((a) => a !== attr)
-					: [...marks, attr]
+				markedAttributes: marks.includes(attr) ? marks.filter((a) => a !== attr) : [...marks, attr]
 			});
 		}
 	}
@@ -519,7 +577,9 @@
 					{#if displayChar.level >= 5}
 						<div class="col-span-2 flex flex-col items-center pt-3 md:col-span-5">
 							<div class="flex items-center gap-3">
-								<span class="text-xs font-semibold tracking-wide text-yellow-400 uppercase">Spark</span>
+								<span class="text-xs font-semibold tracking-wide text-yellow-400 uppercase"
+									>Spark</span
+								>
 								{#each [0, 1] as i}
 									<label class="cursor-pointer">
 										<input
@@ -940,6 +1000,12 @@
 						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
 					>
 						Cancel
+					</button>
+					<button
+						onclick={randomLevelUp}
+						class="rounded border border-amber-700 bg-neutral-800 px-4 py-2 text-sm font-semibold text-amber-400 transition hover:bg-amber-700/20"
+					>
+						🎲 Random
 					</button>
 					<button
 						onclick={confirmLevelUp}
