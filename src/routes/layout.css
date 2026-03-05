@@ -110,3 +110,46 @@ html:not(.dark) input[type='checkbox']:checked {
 	background-color: var(--color-gold) !important;
 	background-image: none !important;
 }
+
+/* Preserve button — green tint, theme-aware */
+.preserve-btn {
+	border-color: #22543d;
+	background: rgba(34, 84, 61, 0.2);
+	color: #68d391;
+}
+html:not(.dark) .preserve-btn {
+	border-color: #276749;
+	background: rgba(39, 103, 73, 0.12);
+	color: #276749;
+}
+
+/* Banish button — red tint, theme-aware */
+.banish-btn {
+	border-color: #7f1d1d;
+	color: #f87171;
+}
+.banish-btn:hover {
+	background: rgba(127, 29, 29, 0.3);
+}
+html:not(.dark) .banish-btn {
+	border-color: #b91c1c;
+	color: #b91c1c;
+}
+html:not(.dark) .banish-btn:hover {
+	background: rgba(185, 28, 28, 0.1);
+}
+
+.banish-btn-confirm {
+	background: #b91c1c;
+	color: white;
+}
+.banish-btn-confirm:hover {
+	background: #dc2626;
+}
+
+.banish-text {
+	color: #f87171;
+}
+html:not(.dark) .banish-text {
+	color: #b91c1c;
+}

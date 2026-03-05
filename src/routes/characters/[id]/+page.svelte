@@ -474,6 +474,34 @@
 							Level Up → {character.level + 1}
 						</button>
 					{/if}
+					<div class="ml-auto">
+						{#if confirmingDelete}
+							<div class="flex items-center gap-2">
+								<span class="banish-text text-sm font-semibold">Banish forever?</span>
+								<button
+									onclick={removeCharacter}
+									class="banish-btn-confirm rounded px-3 py-1.5 text-sm font-semibold transition hover:opacity-80"
+								>
+									Yes, Banish
+								</button>
+								<button
+									onclick={() => (confirmingDelete = false)}
+									class="rounded px-3 py-1.5 text-sm transition"
+									style="background: var(--bg-elevated); color: var(--text-secondary);"
+								>
+									Cancel
+								</button>
+							</div>
+						{:else}
+							<button
+								onclick={() => (confirmingDelete = true)}
+								class="banish-btn rounded border px-4 py-2 text-sm transition hover:opacity-80"
+								style="font-family: var(--font-heading);"
+							>
+								Banish This Soul
+							</button>
+						{/if}
+					</div>
 				{/if}
 			</div>
 
@@ -794,8 +822,9 @@
 					{#if displayChar.level >= 5}
 						<div class="col-span-2 flex flex-col items-center pt-3 md:col-span-5">
 							<div class="flex items-center gap-3">
-								<span class="text-xs font-semibold tracking-wide uppercase" style="color: var(--color-gold);"
-									>Spark</span
+								<span
+									class="text-xs font-semibold tracking-wide uppercase"
+									style="color: var(--color-gold);">Spark</span
 								>
 								{#each [0, 1] as i}
 									<label class="cursor-pointer">
@@ -1203,34 +1232,7 @@
 				{/if}
 			</div>
 
-			<!-- Delete -->
-			<div class="pt-6" style="border-top: 1px solid var(--border-color);">
-				{#if confirmingDelete}
-					<div class="flex items-center gap-4">
-						<span class="text-sm text-red-400">Banish this soul forever?</span>
-						<button
-							onclick={removeCharacter}
-							class="rounded bg-red-700 px-4 py-2 text-sm font-semibold transition hover:bg-red-600"
-						>
-							Yes, Banish
-						</button>
-						<button
-							onclick={() => (confirmingDelete = false)}
-							class="rounded px-4 py-2 text-sm transition"
-							style="background: var(--bg-elevated); color: var(--text-secondary);"
-						>
-							Cancel
-						</button>
-					</div>
-				{:else}
-					<button
-						onclick={() => (confirmingDelete = true)}
-						class="rounded border border-red-800 px-4 py-2 text-sm text-red-400 transition hover:bg-red-900/30"
-					>
-						Banish This Soul
-					</button>
-				{/if}
-			</div>
+
 		</div>
 	</div>
 	<!-- Level Up Modal -->

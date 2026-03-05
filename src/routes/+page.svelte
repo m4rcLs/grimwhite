@@ -56,8 +56,8 @@
 			{#if character}
 				<button
 					onclick={preserve}
-					class="rounded border px-5 py-2 text-sm font-semibold transition hover:opacity-80"
-					style="font-family: var(--font-heading); border-color: #22543d; background: rgba(34, 84, 61, 0.2); color: #68d391;"
+					class="preserve-btn rounded border px-5 py-2 text-sm font-semibold transition hover:opacity-80"
+					style="font-family: var(--font-heading);"
 				>
 					Preserve This Soul
 				</button>
