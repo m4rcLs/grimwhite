@@ -27,17 +27,17 @@ Inspirations: [scvmbirther](https://scvmbirther.makedatanotlore.dev/), [shadowda
 | 9 | Grit & Sanity starting at 1 | **DONE** | |
 | 10 | Name generation | **DONE** | Prefix+suffix syllable combiner |
 | 11 | One-line character summary (NLP-powered) | **DONE** | Uses `compromise` for grammar |
-| 12 | Save character to localStorage | **PARTIAL** | Store exists but `+page.svelte` has a **BUG**: `characterStore` is used without being imported |
+| 12 | Save character to localStorage | **DONE** | Store + import wired up |
 | 13 | Character list page (`/characters`) | **DONE** | Lists preserved characters with summary |
-| 14 | Character sheet page (`/characters/[id]`) | **NOT DONE** | Route does not exist; list page links to it (dead links/404) |
+| 14 | Character sheet page (`/characters/[id]`) | **DONE** | Read-only sheet with all data, archetype feature, Essence Pool |
 | 15 | Editable character sheet (edit name, traits, moves, experiences, attributes) | **NOT DONE** | No editing UI exists |
 | 16 | Manual level-up (button, levels 1–10) | **NOT DONE** | No leveling logic implemented |
 | 17 | Attribute increase at L1, L3, L5, L7, L9, L10 (cap 3, L10 cap 4, total=10) | **NOT DONE** | |
 | 18 | New move slot at L2, L4, L6, L8, L10 | **NOT DONE** | |
 | 19 | New experience at L4, L8, L10 | **NOT DONE** | |
 | 20 | Grit & Sanity increase at L3, L5, L7, L9 (formula: `1 + floor((level-1)/2)`) | **NOT DONE** | |
-| 21 | Wise Essence Pool display (derived: `level + vocation attribute value`) | **NOT DONE** | |
-| 22 | Archetype features display (Consequences of Conflict, One of the Best) | **NOT DONE** | Data exists in `archetypes.ts` but never rendered |
+| 21 | Wise Essence Pool display (derived: `level + vocation attribute value`) | **DONE** | Shown on character sheet for Wise characters |
+| 22 | Archetype features display (Consequences of Conflict, One of the Best) | **DONE** | Rendered on character sheet page |
 | 23 | Notes/items textarea | **NOT DONE** | `notes` field exists in model but no UI |
 | 24 | Portrait placeholder / image upload | **NOT DONE** | `portrait?` field exists in model but no UI |
 | 25 | Dark medieval themed UI with custom fonts | **NOT DONE** | Currently default Tailwind dark. No Cinzel/EB Garamond/rune fonts |
@@ -46,27 +46,23 @@ Inspirations: [scvmbirther](https://scvmbirther.makedatanotlore.dev/), [shadowda
 
 ### Known Bugs
 
-| Bug | Location | Description |
-|-----|----------|-------------|
-| Missing import | `src/routes/+page.svelte` | `characterStore` is referenced in `preserve()` but never imported. Add: `import { characterStore } from '$lib/stores/characterStore'` |
-| `(character as any).summary` | `src/routes/+page.svelte` | `summary` is already on the `Character` interface (as optional). The `as any` cast is unnecessary |
-| Dead links | `src/routes/characters/+page.svelte` | Links to `/characters/${character.id}` but that route does not exist |
+None currently.
 
 ---
 
 ## Open TODOs (Implementation Order)
 
-### Phase 1 — Fix Bugs & Complete Persistence
+### Phase 1 — Fix Bugs & Complete Persistence ✅ DONE
 
-1. **Fix `characterStore` import** in `src/routes/+page.svelte`
-2. **Remove `(character as any).summary`** — use `character.summary` directly
-3. **Create `/characters/[id]` route** — character sheet page that loads a character from the store by ID
+1. ~~**Fix `characterStore` import** in `src/routes/+page.svelte`~~
+2. ~~**Remove `(character as any).summary`** — use `character.summary` directly~~
+3. ~~**Create `/characters/[id]` route** — character sheet page that loads a character from the store by ID~~
+4. ~~**Build character sheet UI** displaying all character data~~
+5. ~~**Display archetype feature text** (Consequences of Conflict / One of the Best)~~
+6. ~~**Display Wise Essence Pool** as derived value~~
 
-### Phase 2 — Character Sheet & Editing
+### Phase 2 — Character Sheet Editing
 
-4. **Build character sheet UI** at `/characters/[id]/+page.svelte` displaying all character data
-5. **Display archetype feature text** (Consequences of Conflict / One of the Best) from `archetypes.ts`
-6. **Display Wise Essence Pool** as derived value: `level + attributes[vocation.assignedAttributes[0]]`
 7. **Inline editing** for: name, ancestry, vocation, affiliation, moves, experiences, attribute assignments
 8. **Notes textarea** — large editable textarea for freeform notes/items
 9. **Portrait placeholder** — display area with future image upload support
@@ -171,7 +167,9 @@ src/
     ├── +page.svelte          # Home page — generator UI (has characterStore import bug)
     ├── page.svelte.spec.ts   # Component test for home page
     └── characters/
-        └── +page.svelte      # Preserved characters list page (links to missing [id] route)
+        ├── +page.svelte      # Preserved characters list page
+        └── [id]/
+            └── +page.svelte  # Character sheet (read-only, shows all data + archetype feature + Essence Pool)
 ```
 
 ---

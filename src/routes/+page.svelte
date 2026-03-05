@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
 	import { generateCharacter } from '$lib/generator/generateCharacter';
+	import { characterStore } from '$lib/stores/characterStore';
 
 	let character: Character | null = null;
 
@@ -54,9 +55,9 @@
 				</p>
 
 				<!-- Summary -->
-				{#if (character as any).summary}
+				{#if character.summary}
 					<p class="mb-6 text-neutral-400 italic">
-						{(character as any).summary}
+						{character.summary}
 					</p>
 				{/if}
 
