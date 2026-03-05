@@ -1,3 +1,83 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@theme {
+	--font-heading: 'Cinzel', serif;
+	--font-body: 'EB Garamond', serif;
+	--font-title: 'Uncial Antiqua', cursive;
+	--color-gold: #b89f5d;
+	--color-gold-light: #d4bc72;
+	--color-gold-dark: #8a7540;
+	--color-parchment: #e8dcc8;
+	--color-parchment-dark: #d4c4a8;
+	--color-ink: #2a2118;
+	--color-ink-light: #4a3f32;
+}
+
+/* Base font */
+html {
+	font-family: var(--font-body);
+}
+
+/* Dark mode (default) */
+:root {
+	color-scheme: dark;
+	--bg-base: #171412;
+	--bg-surface: #1f1b17;
+	--bg-elevated: #2a2520;
+	--border-color: #3d362e;
+	--text-primary: #e8dcc8;
+	--text-secondary: #9a8e7e;
+	--text-muted: #6b6054;
+}
+
+/* Light mode */
+html:not(.dark) {
+	color-scheme: light;
+	--bg-base: #f0e8d8;
+	--bg-surface: #e8dcc8;
+	--bg-elevated: #ddd0bb;
+	--border-color: #c4b598;
+	--text-primary: #2a2118;
+	--text-secondary: #5c4f3e;
+	--text-muted: #8a7e6e;
+}
+
+/* Parchment texture overlay via CSS */
+body {
+	background-color: var(--bg-base);
+	color: var(--text-primary);
+	background-image:
+		repeating-linear-gradient(
+			0deg,
+			transparent,
+			transparent 50px,
+			rgba(139, 119, 81, 0.02) 50px,
+			rgba(139, 119, 81, 0.02) 51px
+		),
+		repeating-linear-gradient(
+			90deg,
+			transparent,
+			transparent 50px,
+			rgba(139, 119, 81, 0.02) 50px,
+			rgba(139, 119, 81, 0.02) 51px
+		),
+		radial-gradient(ellipse at 20% 50%, rgba(139, 119, 81, 0.05) 0%, transparent 60%),
+		radial-gradient(ellipse at 80% 50%, rgba(139, 119, 81, 0.04) 0%, transparent 60%);
+}
+
+/* Headings use Cinzel */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-heading);
+}
+
+/* Title font class */
+.font-title {
+	font-family: var(--font-title);
+}

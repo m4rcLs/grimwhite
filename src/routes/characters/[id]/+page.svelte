@@ -412,11 +412,13 @@
 </script>
 
 {#if notFound}
-	<div class="flex min-h-screen items-center justify-center bg-neutral-900 text-neutral-200">
+	<div class="flex min-h-screen items-center justify-center" style="color: var(--text-primary);">
 		<div class="text-center">
 			<h1 class="mb-4 text-3xl font-bold">Soul Not Found</h1>
-			<p class="mb-6 text-neutral-400">This wretch has been lost to the void.</p>
-			<a href="/characters" class="text-amber-400 underline hover:text-amber-300">
+			<p class="mb-6" style="color: var(--text-secondary);">
+				This wretch has been lost to the void.
+			</p>
+			<a href="/characters" class="underline" style="color: var(--color-gold);">
 				Return to Preserved Souls
 			</a>
 		</div>
@@ -426,42 +428,48 @@
 	{@const feature = getArchetypeFeature(displayChar.archetype)}
 	{@const essence = essencePool(displayChar)}
 
-	<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
+	<div class="min-h-screen p-8" style="color: var(--text-primary);">
 		<div class="mx-auto max-w-4xl">
 			<!-- Action Bar -->
 			<div
-				class="sticky top-0 z-10 -mx-8 mb-6 flex gap-2 border-b border-neutral-700 bg-neutral-900/95 px-8 py-3 backdrop-blur"
+				class="sticky top-[49px] z-10 -mx-8 mb-6 flex gap-2 border-b px-8 py-3 backdrop-blur"
+				style="background-color: color-mix(in srgb, var(--bg-base) 92%, transparent); border-color: var(--border-color);"
 			>
 				{#if editing}
 					<button
 						onclick={saveEdits}
-						class="rounded bg-amber-700 px-4 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
+						class="rounded px-4 py-2 text-sm font-semibold transition hover:opacity-80"
+						style="font-family: var(--font-heading); background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark)); color: var(--bg-base);"
 					>
 						Save
 					</button>
 					<button
 						onclick={cancelEditing}
-						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+						class="rounded px-4 py-2 text-sm transition hover:opacity-80"
+						style="background-color: var(--bg-elevated); color: var(--text-secondary);"
 					>
 						Cancel
 					</button>
 				{:else}
 					<button
 						onclick={startEditing}
-						class="rounded border border-neutral-600 px-4 py-2 text-sm text-neutral-300 transition hover:border-amber-500 hover:text-amber-400"
+						class="rounded border px-4 py-2 text-sm transition hover:opacity-80"
+						style="font-family: var(--font-heading); border-color: var(--border-color); color: var(--text-secondary);"
 					>
 						Edit
 					</button>
 					<button
 						onclick={openNotes}
-						class="rounded border border-neutral-600 px-4 py-2 text-sm text-neutral-300 transition hover:border-amber-500 hover:text-amber-400"
+						class="rounded border px-4 py-2 text-sm transition hover:opacity-80"
+						style="font-family: var(--font-heading); border-color: var(--border-color); color: var(--text-secondary);"
 					>
 						Notes
 					</button>
 					{#if canLevelUp(character)}
 						<button
 							onclick={openLevelUp}
-							class="rounded border border-amber-700 bg-amber-900/20 px-4 py-2 text-sm font-semibold text-amber-400 transition hover:bg-amber-800/30"
+							class="rounded border px-4 py-2 text-sm font-semibold transition hover:opacity-80"
+							style="font-family: var(--font-heading); border-color: var(--color-gold-dark); background: rgba(184,159,93,0.1); color: var(--color-gold);"
 						>
 							Level Up → {character.level + 1}
 						</button>
@@ -473,7 +481,8 @@
 			<div class="mb-8 flex items-start gap-5">
 				<!-- Portrait -->
 				<button
-					class="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-700 bg-neutral-800 transition hover:border-amber-600"
+					class="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border transition"
+					style="border-color: var(--border-color); background-color: var(--bg-surface);"
 					onclick={() => {
 						if (editing) openPortraitModal();
 					}}
@@ -489,7 +498,8 @@
 					{:else}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="h-10 w-10 text-neutral-600"
+							class="h-10 w-10"
+							style="color: var(--text-muted);"
 							viewBox="0 0 24 24"
 							fill="currentColor"
 						>
@@ -504,7 +514,8 @@
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6 text-amber-400"
+								class="h-6 w-6"
+								style="color: var(--color-gold);"
 								viewBox="0 0 20 20"
 								fill="currentColor"
 							>
@@ -522,12 +533,13 @@
 						<input
 							type="text"
 							bind:value={draft.name}
-							class="mb-1 w-full border-b-2 border-amber-600 bg-transparent text-4xl font-bold text-neutral-200 outline-none focus:border-amber-400"
+							class="mb-1 w-full border-b-2 bg-transparent text-4xl font-bold outline-none"
+							style="border-color: var(--color-gold); color: var(--text-primary);"
 						/>
 					{:else}
 						<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
 					{/if}
-					<p class="text-lg tracking-wide text-amber-400 uppercase">
+					<p class="text-lg tracking-wide uppercase" style="color: var(--color-gold);">
 						Level {displayChar.level} — {displayChar.archetype}
 					</p>
 					{#if editing}
@@ -535,10 +547,11 @@
 							type="text"
 							bind:value={draft.summary}
 							placeholder="One-line summary…"
-							class="mt-2 w-full border-b border-neutral-600 bg-transparent text-neutral-400 italic outline-none focus:border-amber-400"
+							class="mt-2 w-full border-b bg-transparent italic outline-none"
+							style="border-color: var(--border-color); color: var(--text-secondary);"
 						/>
 					{:else if displayChar.summary}
-						<p class="mt-2 text-neutral-400 italic">{displayChar.summary}</p>
+						<p class="mt-2 italic" style="color: var(--text-secondary);">{displayChar.summary}</p>
 					{/if}
 				</div>
 			</div>
@@ -547,8 +560,14 @@
 			<div class="mb-8">
 				<div class="grid grid-cols-2 gap-x-8 gap-y-0 md:grid-cols-[1fr_1fr_auto_1fr_1fr]">
 					<!-- Brawns -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+					<div
+						class="wax-seal rounded-lg p-4 text-center"
+						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
+					>
+						<div
+							class="text-xs font-semibold tracking-widest uppercase"
+							style="font-family: var(--font-heading); color: var(--text-secondary);"
+						>
 							{attributeLabels.brawns}
 						</div>
 						{#if editing}
@@ -557,10 +576,14 @@
 								min="0"
 								max="4"
 								bind:value={draft.attributes.brawns}
-								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
+								style="border-color: var(--border-color); color: var(--color-gold);"
 							/>
 						{:else}
-							<div class="text-3xl font-bold text-amber-400">
+							<div
+								class="text-3xl font-bold"
+								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+							>
 								{displayChar.attributes.brawns}
 							</div>
 						{/if}
@@ -570,15 +593,24 @@
 									type="checkbox"
 									checked={(displayChar.markedAttributes ?? []).includes('brawns')}
 									onchange={() => toggleMarkedAttribute('brawns')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
+									style="border-color: var(--color-gold); background-color: var(--bg-base);"
 								/>
-								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
+									>Marked</span
+								>
 							</label>
 						{/if}
 					</div>
 					<!-- Agility -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+					<div
+						class="wax-seal rounded-lg p-4 text-center"
+						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
+					>
+						<div
+							class="text-xs font-semibold tracking-widest uppercase"
+							style="font-family: var(--font-heading); color: var(--text-secondary);"
+						>
 							{attributeLabels.agility}
 						</div>
 						{#if editing}
@@ -587,10 +619,14 @@
 								min="0"
 								max="4"
 								bind:value={draft.attributes.agility}
-								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
+								style="border-color: var(--border-color); color: var(--color-gold);"
 							/>
 						{:else}
-							<div class="text-3xl font-bold text-amber-400">
+							<div
+								class="text-3xl font-bold"
+								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+							>
 								{displayChar.attributes.agility}
 							</div>
 						{/if}
@@ -600,17 +636,26 @@
 									type="checkbox"
 									checked={(displayChar.markedAttributes ?? []).includes('agility')}
 									onchange={() => toggleMarkedAttribute('agility')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
+									style="border-color: var(--color-gold); background-color: var(--bg-base);"
 								/>
-								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
+									>Marked</span
+								>
 							</label>
 						{/if}
 					</div>
 					<!-- Spacer (desktop only) -->
 					<div class="hidden md:block"></div>
 					<!-- Wits -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+					<div
+						class="wax-seal rounded-lg p-4 text-center"
+						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
+					>
+						<div
+							class="text-xs font-semibold tracking-widest uppercase"
+							style="font-family: var(--font-heading); color: var(--text-secondary);"
+						>
 							{attributeLabels.wits}
 						</div>
 						{#if editing}
@@ -619,10 +664,14 @@
 								min="0"
 								max="4"
 								bind:value={draft.attributes.wits}
-								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
+								style="border-color: var(--border-color); color: var(--color-gold);"
 							/>
 						{:else}
-							<div class="text-3xl font-bold text-amber-400">
+							<div
+								class="text-3xl font-bold"
+								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+							>
 								{displayChar.attributes.wits}
 							</div>
 						{/if}
@@ -632,15 +681,24 @@
 									type="checkbox"
 									checked={(displayChar.markedAttributes ?? []).includes('wits')}
 									onchange={() => toggleMarkedAttribute('wits')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
+									style="border-color: var(--color-gold); background-color: var(--bg-base);"
 								/>
-								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
+									>Marked</span
+								>
 							</label>
 						{/if}
 					</div>
 					<!-- Presence -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
+					<div
+						class="wax-seal rounded-lg p-4 text-center"
+						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
+					>
+						<div
+							class="text-xs font-semibold tracking-widest uppercase"
+							style="font-family: var(--font-heading); color: var(--text-secondary);"
+						>
 							{attributeLabels.presence}
 						</div>
 						{#if editing}
@@ -649,10 +707,14 @@
 								min="0"
 								max="4"
 								bind:value={draft.attributes.presence}
-								class="mx-auto mt-1 w-16 rounded border border-neutral-600 bg-neutral-900 text-center text-3xl font-bold text-amber-400 outline-none focus:border-amber-400"
+								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
+								style="border-color: var(--border-color); color: var(--color-gold);"
 							/>
 						{:else}
-							<div class="text-3xl font-bold text-amber-400">
+							<div
+								class="text-3xl font-bold"
+								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+							>
 								{displayChar.attributes.presence}
 							</div>
 						{/if}
@@ -662,9 +724,12 @@
 									type="checkbox"
 									checked={(displayChar.markedAttributes ?? []).includes('presence')}
 									onchange={() => toggleMarkedAttribute('presence')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-amber-600 bg-neutral-900 transition checked:bg-amber-600"
+									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
+									style="border-color: var(--color-gold); background-color: var(--bg-base);"
 								/>
-								<span class="text-[10px] tracking-wide text-neutral-500 uppercase">Marked</span>
+								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
+									>Marked</span
+								>
 							</label>
 						{/if}
 					</div>
@@ -687,7 +752,8 @@
 											});
 										}
 									}}
-									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-red-700 bg-neutral-900 transition checked:bg-red-700"
+									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-red-700 transition checked:bg-red-700"
+									style="background-color: var(--bg-base);"
 								/>
 								<span class="text-xs font-semibold tracking-wide text-red-400 uppercase"
 									>Bloodied</span
@@ -713,7 +779,8 @@
 											characterStore.updateCharacter({ ...character, rattled: !character.rattled });
 										}
 									}}
-									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-violet-700 bg-neutral-900 transition checked:bg-violet-700"
+									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-violet-700 transition checked:bg-violet-700"
+									style="background-color: var(--bg-base);"
 								/>
 								<span class="text-xs font-semibold tracking-wide text-violet-400 uppercase"
 									>Rattled</span
@@ -736,7 +803,8 @@
 											type="checkbox"
 											checked={(displayChar.spark ?? [false, false])[i]}
 											onchange={() => toggleSpark(i as 0 | 1)}
-											class="h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-yellow-500 bg-neutral-900 transition checked:bg-yellow-500"
+											class="h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-yellow-500 transition checked:bg-yellow-500"
+											style="background-color: var(--bg-base);"
 										/>
 									</label>
 								{/each}
@@ -748,36 +816,61 @@
 
 			<!-- Grit, Sanity & Essence -->
 			<div class="mb-8 flex flex-wrap gap-6">
-				<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
-					<span class="text-sm text-neutral-400">Grit</span>
+				<div
+					class="rounded px-5 py-3"
+					style="background: var(--bg-surface); border: 1px solid var(--border-color);"
+				>
+					<span
+						class="text-sm"
+						style="color: var(--text-secondary); font-family: var(--font-heading);">Grit</span
+					>
 					{#if editing}
 						<input
 							type="number"
 							min="0"
 							bind:value={draft.grit}
-							class="ml-2 w-12 rounded border border-neutral-600 bg-neutral-900 text-center text-xl font-bold text-amber-400 outline-none focus:border-amber-400"
+							class="ml-2 w-12 rounded border bg-transparent text-center text-xl font-bold outline-none"
+							style="border-color: var(--border-color); color: var(--color-gold);"
 						/>
 					{:else}
-						<span class="ml-2 text-xl font-bold text-amber-400">{displayChar.grit}</span>
+						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
+							>{displayChar.grit}</span
+						>
 					{/if}
 				</div>
-				<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
-					<span class="text-sm text-neutral-400">Sanity</span>
+				<div
+					class="rounded px-5 py-3"
+					style="background: var(--bg-surface); border: 1px solid var(--border-color);"
+				>
+					<span
+						class="text-sm"
+						style="color: var(--text-secondary); font-family: var(--font-heading);">Sanity</span
+					>
 					{#if editing}
 						<input
 							type="number"
 							min="0"
 							bind:value={draft.sanity}
-							class="ml-2 w-12 rounded border border-neutral-600 bg-neutral-900 text-center text-xl font-bold text-amber-400 outline-none focus:border-amber-400"
+							class="ml-2 w-12 rounded border bg-transparent text-center text-xl font-bold outline-none"
+							style="border-color: var(--border-color); color: var(--color-gold);"
 						/>
 					{:else}
-						<span class="ml-2 text-xl font-bold text-amber-400">{displayChar.sanity}</span>
+						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
+							>{displayChar.sanity}</span
+						>
 					{/if}
 				</div>
 				{#if essence !== null}
-					<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
-						<span class="text-sm text-neutral-400">Essence Pool</span>
-						<span class="ml-2 text-xl font-bold text-amber-400">{essence}</span>
+					<div
+						class="rounded px-5 py-3"
+						style="background: var(--bg-surface); border: 1px solid var(--border-color);"
+					>
+						<span
+							class="text-sm"
+							style="color: var(--text-secondary); font-family: var(--font-heading);"
+							>Essence Pool</span
+						>
+						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);">{essence}</span>
 					</div>
 				{/if}
 			</div>
@@ -786,29 +879,36 @@
 			<div class="mb-8 space-y-4">
 				<!-- Ancestry -->
 				<div>
-					<div class="font-semibold text-neutral-400">Ancestry</div>
+					<div
+						class="font-semibold"
+						style="color: var(--text-secondary); font-family: var(--font-heading);"
+					>
+						Ancestry
+					</div>
 					<div class="flex items-center gap-3">
 						{#if editing}
 							<input
 								type="text"
 								bind:value={draft.ancestry.name}
-								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
+								class="rounded border bg-transparent px-2 py-1 outline-none"
+								style="border-color: var(--border-color); color: var(--text-primary);"
 							/>
 							{@const ancestryLimit = getAncestryAttributeLimit(draft.ancestry.name)}
 							{#if ancestryLimit === 0}
-								<span class="text-xs text-neutral-500 italic">No attribute bonuses</span>
+								<span class="text-xs italic" style="color: var(--text-muted);"
+									>No attribute bonuses</span
+								>
 							{:else}
 								<div class="flex gap-1">
 									{#each ATTRIBUTE_NAMES as attr}
 										<button
 											onclick={() => toggleTraitAttribute('ancestry', attr)}
-											class={`rounded px-2 py-1 text-xs uppercase transition ${
-												draft.ancestry.assignedAttributes.includes(attr)
-													? 'bg-amber-800 text-amber-200'
-													: draft.ancestry.assignedAttributes.length >= ancestryLimit
-														? 'cursor-not-allowed bg-neutral-800 text-neutral-600'
-														: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
-											}`}
+											class="rounded px-2 py-1 text-xs uppercase transition"
+											style={draft.ancestry.assignedAttributes.includes(attr)
+												? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
+												: draft.ancestry.assignedAttributes.length >= ancestryLimit
+													? 'background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;'
+													: 'background: var(--bg-elevated); color: var(--text-secondary);'}
 										>
 											{attributeLabels[attr]}
 										</button>
@@ -818,7 +918,10 @@
 						{:else}
 							<span>{displayChar.ancestry.name}</span>
 							{#each displayChar.ancestry.assignedAttributes as attr}
-								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+								<span
+									class="rounded px-2 py-1 text-xs uppercase"
+									style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
+								>
 									{attributeLabels[attr]}
 								</span>
 							{/each}
@@ -828,29 +931,36 @@
 
 				<!-- Vocation -->
 				<div>
-					<div class="font-semibold text-neutral-400">Vocation</div>
+					<div
+						class="font-semibold"
+						style="color: var(--text-secondary); font-family: var(--font-heading);"
+					>
+						Vocation
+					</div>
 					<div class="flex items-center gap-3">
 						{#if editing}
 							<input
 								type="text"
 								bind:value={draft.vocation.name}
-								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
+								class="rounded border bg-transparent px-2 py-1 outline-none"
+								style="border-color: var(--border-color); color: var(--text-primary);"
 							/>
 							{#if draft.archetype === 'deft'}
-								<span class="text-xs text-neutral-500 italic">Applies to any attribute</span>
+								<span class="text-xs italic" style="color: var(--text-muted);"
+									>Applies to any attribute</span
+								>
 							{:else}
 								<div class="flex gap-1">
 									{#each ATTRIBUTE_NAMES as attr}
 										<button
 											onclick={() => toggleTraitAttribute('vocation', attr)}
-											class={`rounded px-2 py-1 text-xs uppercase transition ${
-												draft.vocation.assignedAttributes.includes(attr)
-													? 'bg-amber-800 text-amber-200'
-													: draft.vocation.assignedAttributes.length >=
-														  TRAIT_ATTRIBUTE_LIMITS.vocation
-														? 'cursor-not-allowed bg-neutral-800 text-neutral-600'
-														: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
-											}`}
+											class="rounded px-2 py-1 text-xs uppercase transition"
+											style={draft.vocation.assignedAttributes.includes(attr)
+												? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
+												: draft.vocation.assignedAttributes.length >=
+													  TRAIT_ATTRIBUTE_LIMITS.vocation
+													? 'background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;'
+													: 'background: var(--bg-elevated); color: var(--text-secondary);'}
 										>
 											{attributeLabels[attr]}
 										</button>
@@ -860,10 +970,15 @@
 						{:else}
 							<span>{displayChar.vocation.name}</span>
 							{#if displayChar.archetype === 'deft'}
-								<span class="text-xs text-neutral-500 italic">Applies to any attribute</span>
+								<span class="text-xs italic" style="color: var(--text-muted);"
+									>Applies to any attribute</span
+								>
 							{:else}
 								{#each displayChar.vocation.assignedAttributes as attr}
-									<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+									<span
+										class="rounded px-2 py-1 text-xs uppercase"
+										style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
+									>
 										{attributeLabels[attr]}
 									</span>
 								{/each}
@@ -874,26 +989,31 @@
 
 				<!-- Affiliation -->
 				<div>
-					<div class="font-semibold text-neutral-400">Affiliation</div>
+					<div
+						class="font-semibold"
+						style="color: var(--text-secondary); font-family: var(--font-heading);"
+					>
+						Affiliation
+					</div>
 					<div class="flex items-center gap-3">
 						{#if editing}
 							<input
 								type="text"
 								bind:value={draft.affiliations[0].name}
-								class="rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-neutral-200 outline-none focus:border-amber-400"
+								class="rounded border bg-transparent px-2 py-1 outline-none"
+								style="border-color: var(--border-color); color: var(--text-primary);"
 							/>
 							<div class="flex gap-1">
 								{#each ATTRIBUTE_NAMES as attr}
 									<button
 										onclick={() => toggleTraitAttribute('affiliation', attr)}
-										class={`rounded px-2 py-1 text-xs uppercase transition ${
-											draft.affiliations[0]?.assignedAttributes.includes(attr)
-												? 'bg-amber-800 text-amber-200'
-												: (draft.affiliations[0]?.assignedAttributes.length ?? 0) >=
-													  TRAIT_ATTRIBUTE_LIMITS.affiliation
-													? 'cursor-not-allowed bg-neutral-800 text-neutral-600'
-													: 'bg-neutral-700 text-neutral-500 hover:bg-neutral-600'
-										}`}
+										class="rounded px-2 py-1 text-xs uppercase transition"
+										style={draft.affiliations[0]?.assignedAttributes.includes(attr)
+											? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
+											: (draft.affiliations[0]?.assignedAttributes.length ?? 0) >=
+												  TRAIT_ATTRIBUTE_LIMITS.affiliation
+												? 'background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;'
+												: 'background: var(--bg-elevated); color: var(--text-secondary);'}
 									>
 										{attributeLabels[attr]}
 									</button>
@@ -902,7 +1022,10 @@
 						{:else}
 							<span>{displayChar.affiliations[0]?.name}</span>
 							{#each displayChar.affiliations[0]?.assignedAttributes ?? [] as attr}
-								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+								<span
+									class="rounded px-2 py-1 text-xs uppercase"
+									style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
+								>
 									{attributeLabels[attr]}
 								</span>
 							{/each}
@@ -913,8 +1036,16 @@
 
 			<!-- Archetype Feature -->
 			{#if feature}
-				<div class="mb-8 rounded border border-neutral-700 bg-neutral-800 p-5">
-					<h3 class="mb-2 text-lg font-semibold text-amber-400">{feature.name}</h3>
+				<div
+					class="mb-8 rounded-lg p-5"
+					style="background: var(--bg-surface); border: 1px solid var(--border-color);"
+				>
+					<h3
+						class="mb-2 text-lg font-semibold"
+						style="color: var(--color-gold); font-family: var(--font-heading);"
+					>
+						{feature.name}
+					</h3>
 					<div class="prose prose-sm max-w-none prose-invert prose-amber">
 						{@html marked(feature.description)}
 					</div>
@@ -923,32 +1054,38 @@
 
 			<!-- Moves -->
 			<div class="mb-8">
-				<h3 class="mb-3 text-xl font-semibold text-amber-400">
+				<h3
+					class="mb-3 text-xl font-semibold"
+					style="color: var(--color-gold); font-family: var(--font-heading);"
+				>
 					{MoveNames[displayChar.archetype]}
 				</h3>
 
 				<div class="space-y-4">
 					{#each displayChar.moves as slot, slotIndex}
-						<div class="rounded border border-neutral-700 bg-neutral-900 p-4">
-							<div class="mb-2 text-sm tracking-wide text-neutral-500 uppercase">
+						<div
+							class="rounded-lg p-4"
+							style="background: var(--bg-elevated); border: 1px solid var(--border-color);"
+						>
+							<div class="mb-2 text-sm tracking-wide uppercase" style="color: var(--text-muted);">
 								{slot.type}
 							</div>
 
 							{#each slot.moves as move, moveIndex}
 								<div
-									class={`mb-2 flex items-center gap-2 rounded px-3 py-2 ${
-										move.active === true
-											? 'bg-amber-700 text-black'
-											: move.active === false
-												? 'bg-neutral-800 text-neutral-400'
-												: 'bg-neutral-800'
-									}`}
+									class="mb-2 flex items-center gap-2 rounded px-3 py-2"
+									style={move.active === true
+										? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
+										: move.active === false
+											? `background: var(--bg-surface); color: var(--text-muted);`
+											: `background: var(--bg-surface); color: var(--text-primary);`}
 								>
 									{#if editing}
 										<input
 											type="text"
 											bind:value={draft.moves[slotIndex].moves[moveIndex].name}
-											class="flex-1 rounded border border-neutral-600 bg-neutral-900 px-2 py-1 text-sm text-neutral-200 outline-none focus:border-amber-400"
+											class="flex-1 rounded border bg-transparent px-2 py-1 text-sm outline-none"
+											style="border-color: var(--border-color); color: var(--text-primary);"
 										/>
 										{#if move.active !== undefined}
 											<button
@@ -963,11 +1100,10 @@
 													}
 													draft.moves[slotIndex].moves[moveIndex].active = activating;
 												}}
-												class={`rounded px-2 py-1 text-xs uppercase transition ${
-													draft.moves[slotIndex].moves[moveIndex].active
-														? 'bg-amber-600 text-black'
-														: 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
-												}`}
+												class="rounded px-2 py-1 text-xs uppercase transition"
+												style={draft.moves[slotIndex].moves[moveIndex].active
+													? 'background: var(--color-gold); color: var(--bg-base);'
+													: 'background: var(--bg-elevated); color: var(--text-secondary);'}
 											>
 												{draft.moves[slotIndex].moves[moveIndex].active ? 'Active' : 'Inactive'}
 											</button>
@@ -989,7 +1125,12 @@
 
 			<!-- Experiences -->
 			<div class="mb-8">
-				<h3 class="mb-3 text-xl font-semibold text-amber-400">Experiences</h3>
+				<h3
+					class="mb-3 text-xl font-semibold"
+					style="color: var(--color-gold); font-family: var(--font-heading);"
+				>
+					Experiences
+				</h3>
 				{#if editing}
 					<div class="space-y-2">
 						{#each draft.experiences as exp, i}
@@ -997,11 +1138,13 @@
 								<input
 									type="text"
 									bind:value={draft.experiences[i].name}
-									class="flex-1 rounded border border-neutral-600 bg-neutral-900 px-3 py-2 text-neutral-200 outline-none focus:border-amber-400"
+									class="flex-1 rounded border bg-transparent px-3 py-2 outline-none"
+									style="border-color: var(--border-color); color: var(--text-primary);"
 								/>
 								<button
 									onclick={() => removeExperience(i)}
-									class="rounded p-2 text-neutral-600 transition hover:bg-red-900/40 hover:text-red-400"
+									class="rounded p-2 transition hover:bg-red-900/40 hover:text-red-400"
+									style="color: var(--text-muted);"
 									title="Remove experience"
 								>
 									<svg
@@ -1021,13 +1164,14 @@
 						{/each}
 						<button
 							onclick={addExperience}
-							class="rounded border border-dashed border-neutral-600 px-3 py-2 text-sm text-neutral-500 transition hover:border-amber-500 hover:text-amber-400"
+							class="rounded border border-dashed px-3 py-2 text-sm transition"
+							style="border-color: var(--border-color); color: var(--text-muted);"
 						>
 							+ Add Experience
 						</button>
 					</div>
 				{:else}
-					<ul class="list-inside list-disc text-neutral-300">
+					<ul class="list-inside list-disc" style="color: var(--text-secondary);">
 						{#each displayChar.experiences as exp}
 							<li>{exp.name}</li>
 						{/each}
@@ -1037,7 +1181,12 @@
 
 			<!-- Notes -->
 			<div class="mb-8">
-				<h3 class="mb-3 text-xl font-semibold text-amber-400">Notes</h3>
+				<h3
+					class="mb-3 text-xl font-semibold"
+					style="color: var(--color-gold); font-family: var(--font-heading);"
+				>
+					Notes
+				</h3>
 				{#if editing}
 					<TiptapEditor
 						content={draft.notes ?? ''}
@@ -1050,12 +1199,12 @@
 						{@html marked(displayChar.notes)}
 					</div>
 				{:else}
-					<p class="text-neutral-500 italic">No notes yet.</p>
+					<p class="italic" style="color: var(--text-muted);">No notes yet.</p>
 				{/if}
 			</div>
 
 			<!-- Delete -->
-			<div class="border-t border-neutral-700 pt-6">
+			<div class="pt-6" style="border-top: 1px solid var(--border-color);">
 				{#if confirmingDelete}
 					<div class="flex items-center gap-4">
 						<span class="text-sm text-red-400">Banish this soul forever?</span>
@@ -1067,7 +1216,8 @@
 						</button>
 						<button
 							onclick={() => (confirmingDelete = false)}
-							class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+							class="rounded px-4 py-2 text-sm transition"
+							style="background: var(--bg-elevated); color: var(--text-secondary);"
 						>
 							Cancel
 						</button>
@@ -1095,17 +1245,23 @@
 			aria-label="Level Up"
 		>
 			<div
-				class="mx-4 w-full max-w-lg rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
+				class="mx-4 w-full max-w-lg rounded-lg p-6 shadow-2xl"
+				style="background: var(--bg-base); border: 1px solid var(--color-gold-dark);"
 			>
-				<h2 class="mb-1 text-2xl font-bold text-amber-400">
+				<h2
+					class="mb-1 text-2xl font-bold"
+					style="color: var(--color-gold); font-family: var(--font-heading);"
+				>
 					Level Up to {levelUpResult.character.level}
 				</h2>
-				<p class="mb-4 text-sm text-neutral-400">
+				<p class="mb-4 text-sm" style="color: var(--text-secondary);">
 					Gains: {levelUpSummary(levelUpResult.character.level).join(', ')}
 				</p>
 
 				{#if levelUpResult.grantsAttribute}
-					<p class="mb-4 text-sm text-neutral-300">Choose an attribute to increase:</p>
+					<p class="mb-4 text-sm" style="color: var(--text-primary);">
+						Choose an attribute to increase:
+					</p>
 					<div class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
 						{#each ATTRIBUTE_NAMES as attr}
 							{@const canIncrease = canIncreaseAttribute(
@@ -1118,24 +1274,28 @@
 									if (canIncrease) selectedAttribute = attr;
 								}}
 								disabled={!canIncrease}
-								class={`rounded border p-3 text-center transition ${
-									selectedAttribute === attr
-										? 'border-amber-400 bg-amber-700/30 ring-2 ring-amber-400'
-										: canIncrease
-											? 'border-amber-600 bg-neutral-800 hover:bg-amber-700/20 hover:text-amber-400'
-											: 'cursor-not-allowed border-neutral-700 bg-neutral-800 text-neutral-600'
-								}`}
+								class="rounded p-3 text-center transition"
+								style={selectedAttribute === attr
+									? `border: 2px solid var(--color-gold); background: rgba(184,159,93,0.15); box-shadow: 0 0 8px rgba(184,159,93,0.3);`
+									: canIncrease
+										? `border: 1px solid var(--color-gold-dark); background: var(--bg-surface);`
+										: `border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;`}
 							>
-								<div class="text-xs tracking-wide uppercase">
+								<div
+									class="text-xs tracking-wide uppercase"
+									style="font-family: var(--font-heading);"
+								>
 									{attributeLabels[attr]}
 								</div>
-								<div class="text-2xl font-bold text-amber-400">
+								<div class="text-2xl font-bold" style="color: var(--color-gold);">
 									{character.attributes[attr]}
 								</div>
 								{#if canIncrease}
-									<div class="text-xs text-amber-500">→ {character.attributes[attr] + 1}</div>
+									<div class="text-xs" style="color: var(--color-gold-light);">
+										→ {character.attributes[attr] + 1}
+									</div>
 								{:else}
-									<div class="text-xs text-neutral-600">max</div>
+									<div class="text-xs" style="color: var(--text-muted);">max</div>
 								{/if}
 							</button>
 						{/each}
@@ -1145,24 +1305,25 @@
 				<div class="flex justify-end gap-3">
 					<button
 						onclick={cancelLevelUp}
-						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+						class="rounded px-4 py-2 text-sm transition"
+						style="background: var(--bg-elevated); color: var(--text-secondary);"
 					>
 						Cancel
 					</button>
 					<button
 						onclick={randomLevelUp}
-						class="rounded border border-amber-700 bg-neutral-800 px-4 py-2 text-sm font-semibold text-amber-400 transition hover:bg-amber-700/20"
+						class="rounded border px-4 py-2 text-sm font-semibold transition"
+						style="border-color: var(--color-gold-dark); background: var(--bg-surface); color: var(--color-gold);"
 					>
 						🎲 Random
 					</button>
 					<button
 						onclick={confirmLevelUp}
 						disabled={levelUpResult.grantsAttribute && !selectedAttribute}
-						class={`rounded px-4 py-2 text-sm font-semibold transition ${
-							levelUpResult.grantsAttribute && !selectedAttribute
-								? 'cursor-not-allowed bg-neutral-700 text-neutral-500'
-								: 'bg-amber-700 text-black hover:bg-amber-600'
-						}`}
+						class="rounded px-4 py-2 text-sm font-semibold transition"
+						style={levelUpResult.grantsAttribute && !selectedAttribute
+							? `background: var(--bg-elevated); color: var(--text-muted); cursor: not-allowed;`
+							: `background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);`}
 					>
 						Confirm Level Up
 					</button>
@@ -1182,17 +1343,25 @@
 			aria-label="Upload Portrait"
 		>
 			<div
-				class="mx-4 w-full max-w-md rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
+				class="mx-4 w-full max-w-md rounded-lg p-6 shadow-2xl"
+				style="background: var(--bg-base); border: 1px solid var(--color-gold-dark);"
 			>
-				<h2 class="mb-4 text-2xl font-bold text-amber-400">Portrait</h2>
+				<h2
+					class="mb-4 text-2xl font-bold"
+					style="color: var(--color-gold); font-family: var(--font-heading);"
+				>
+					Portrait
+				</h2>
 
 				{#if !portraitImg}
 					<label
-						class="flex h-48 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-neutral-600 transition hover:border-amber-500"
+						class="flex h-48 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed transition"
+						style="border-color: var(--border-color);"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="mb-2 h-10 w-10 text-neutral-500"
+							class="mb-2 h-10 w-10"
+							style="color: var(--text-muted);"
 							viewBox="0 0 20 20"
 							fill="currentColor"
 						>
@@ -1202,15 +1371,19 @@
 								clip-rule="evenodd"
 							/>
 						</svg>
-						<span class="text-sm text-neutral-400">Click to select an image</span>
+						<span class="text-sm" style="color: var(--text-secondary);"
+							>Click to select an image</span
+						>
 						<input type="file" accept="image/*" class="hidden" onchange={handlePortraitFile} />
 					</label>
 				{:else}
 					<div class="flex flex-col items-center gap-3">
-						<p class="text-xs text-neutral-500">Drag to reposition. Scroll to zoom.</p>
+						<p class="text-xs" style="color: var(--text-muted);">
+							Drag to reposition. Scroll to zoom.
+						</p>
 						<div
-							class="overflow-hidden rounded-lg border border-neutral-700"
-							style="width: {PORTRAIT_SIZE}px; height: {PORTRAIT_SIZE}px;"
+							class="overflow-hidden rounded-lg"
+							style="width: {PORTRAIT_SIZE}px; height: {PORTRAIT_SIZE}px; border: 1px solid var(--border-color);"
 						>
 							<canvas
 								bind:this={cropCanvas}
@@ -1224,7 +1397,7 @@
 								onpointercancel={onCropPointerUp}
 							></canvas>
 						</div>
-						<label class="cursor-pointer text-xs text-amber-400 underline hover:text-amber-300">
+						<label class="cursor-pointer text-xs underline" style="color: var(--color-gold);">
 							Choose different image
 							<input type="file" accept="image/*" class="hidden" onchange={handlePortraitFile} />
 						</label>
@@ -1242,18 +1415,18 @@
 					{/if}
 					<button
 						onclick={cancelPortraitModal}
-						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+						class="rounded px-4 py-2 text-sm transition"
+						style="background: var(--bg-elevated); color: var(--text-secondary);"
 					>
 						Cancel
 					</button>
 					<button
 						onclick={savePortrait}
 						disabled={!portraitImg}
-						class={`rounded px-4 py-2 text-sm font-semibold transition ${
-							portraitImg
-								? 'bg-amber-700 text-black hover:bg-amber-600'
-								: 'cursor-not-allowed bg-neutral-700 text-neutral-500'
-						}`}
+						class="rounded px-4 py-2 text-sm font-semibold transition"
+						style={portraitImg
+							? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
+							: 'background: var(--bg-elevated); color: var(--text-muted); cursor: not-allowed;'}
 					>
 						Save Portrait
 					</button>
@@ -1273,9 +1446,15 @@
 			aria-label="Edit Notes"
 		>
 			<div
-				class="mx-4 flex w-full max-w-lg flex-col rounded-lg border border-amber-700 bg-neutral-900 p-6 shadow-2xl"
+				class="mx-4 flex w-full max-w-lg flex-col rounded-lg p-6 shadow-2xl"
+				style="background: var(--bg-base); border: 1px solid var(--color-gold-dark);"
 			>
-				<h2 class="mb-4 text-2xl font-bold text-amber-400">Notes</h2>
+				<h2
+					class="mb-4 text-2xl font-bold"
+					style="color: var(--color-gold); font-family: var(--font-heading);"
+				>
+					Notes
+				</h2>
 				<div class="mb-4">
 					<TiptapEditor
 						content={notesDraft}
@@ -1287,13 +1466,15 @@
 				<div class="flex justify-end gap-3">
 					<button
 						onclick={cancelNotes}
-						class="rounded bg-neutral-700 px-4 py-2 text-sm transition hover:bg-neutral-600"
+						class="rounded px-4 py-2 text-sm transition"
+						style="background: var(--bg-elevated); color: var(--text-secondary);"
 					>
 						Cancel
 					</button>
 					<button
 						onclick={saveNotes}
-						class="rounded bg-amber-700 px-4 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
+						class="rounded px-4 py-2 text-sm font-semibold transition"
+						style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
 					>
 						Save Notes
 					</button>
@@ -1302,7 +1483,7 @@
 		</div>
 	{/if}
 {:else}
-	<div class="flex min-h-screen items-center justify-center bg-neutral-900 text-neutral-200">
-		<p class="text-neutral-400">Loading...</p>
+	<div class="flex min-h-screen items-center justify-center" style="color: var(--text-secondary);">
+		<p style="color: var(--text-muted);">Loading...</p>
 	</div>
 {/if}

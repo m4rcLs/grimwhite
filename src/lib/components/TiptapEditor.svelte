@@ -51,13 +51,19 @@
 	}
 
 	function btn(active: boolean): string {
-		return `rounded px-2 py-1 text-xs transition ${active ? 'bg-amber-700 text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'}`;
+		return `rounded px-2 py-1 text-xs transition ${active ? 'tiptap-btn-active' : 'tiptap-btn'}`;
 	}
 </script>
 
-<div class="overflow-hidden rounded border border-neutral-600 bg-neutral-800">
+<div
+	class="overflow-hidden rounded"
+	style="background: var(--bg-surface); border: 1px solid var(--border-color);"
+>
 	{#if editor}
-		<div class="flex flex-wrap gap-1 border-b border-neutral-600 bg-neutral-900 px-2 py-1.5">
+		<div
+			class="flex flex-wrap gap-1 px-2 py-1.5"
+			style="background: var(--bg-elevated); border-bottom: 1px solid var(--border-color);"
+		>
 			<button
 				type="button"
 				class={btn(isActive('bold'))}
@@ -79,7 +85,7 @@
 			>
 				<s>S</s>
 			</button>
-			<div class="mx-1 w-px bg-neutral-700"></div>
+			<div class="mx-1 w-px" style="background: var(--border-color);"></div>
 			<button
 				type="button"
 				class={btn(isActive('heading', { level: 2 }))}
@@ -94,7 +100,7 @@
 			>
 				H3
 			</button>
-			<div class="mx-1 w-px bg-neutral-700"></div>
+			<div class="mx-1 w-px" style="background: var(--border-color);"></div>
 			<button
 				type="button"
 				class={btn(isActive('bulletList'))}
@@ -109,7 +115,7 @@
 			>
 				1. List
 			</button>
-			<div class="mx-1 w-px bg-neutral-700"></div>
+			<div class="mx-1 w-px" style="background: var(--border-color);"></div>
 			<button
 				type="button"
 				class={btn(isActive('blockquote'))}
@@ -124,10 +130,10 @@
 			>
 				Code
 			</button>
-			<div class="mx-1 w-px bg-neutral-700"></div>
+			<div class="mx-1 w-px" style="background: var(--border-color);"></div>
 			<button
 				type="button"
-				class="rounded bg-neutral-700 px-2 py-1 text-xs text-neutral-300 transition hover:bg-neutral-600"
+				class="tiptap-btn rounded px-2 py-1 text-xs transition"
 				onclick={() => editor?.chain().focus().setHorizontalRule().run()}
 			>
 				—
@@ -136,3 +142,17 @@
 	{/if}
 	<div class="max-h-[50vh] overflow-y-auto" bind:this={editorElement}></div>
 </div>
+
+<style>
+	.tiptap-btn {
+		background: var(--bg-surface);
+		color: var(--text-secondary);
+	}
+	.tiptap-btn:hover {
+		background: var(--bg-elevated);
+	}
+	.tiptap-btn-active {
+		background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold));
+		color: var(--bg-base);
+	}
+</style>
