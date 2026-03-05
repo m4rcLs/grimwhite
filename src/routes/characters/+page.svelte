@@ -20,34 +20,43 @@
 	}
 </script>
 
-<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
+<div class="min-h-screen p-8" style="color: var(--text-primary);">
 	<div class="mx-auto max-w-4xl">
-		<h1 class="mb-6 text-3xl font-bold">Preserved Souls</h1>
+		<h1
+			class="mb-6 text-3xl font-bold"
+			style="font-family: var(--font-heading); color: var(--color-gold);"
+		>
+			Preserved Souls
+		</h1>
 
 		{#if characters.length === 0}
-			<p class="text-neutral-400">No souls preserved yet.</p>
+			<p style="color: var(--text-muted);">No souls preserved yet.</p>
 		{:else}
 			<div class="space-y-4">
 				{#each characters as character}
 					<a
 						href={`/characters/${character.id}`}
-						class="group relative block rounded border border-neutral-700 bg-neutral-800 p-4 pr-12 transition hover:bg-neutral-700"
+						class="group relative block rounded-lg p-4 pr-12 transition"
+						style="background: var(--bg-surface); border: 1px solid var(--border-color);"
+						onmouseenter={(e) => (e.currentTarget.style.background = 'var(--bg-elevated)')}
+						onmouseleave={(e) => (e.currentTarget.style.background = 'var(--bg-surface)')}
 					>
 						<div class="text-xl font-semibold">
 							{character.name}
 						</div>
 
-						<div class="text-sm text-neutral-400">
+						<div class="text-sm" style="color: var(--text-secondary);">
 							{character.summary}
 						</div>
 
-						<div class="mt-2 text-xs tracking-wide text-amber-400 uppercase">
+						<div class="mt-2 text-xs tracking-wide uppercase" style="color: var(--color-gold);">
 							Level {character.level} — {character.archetype}
 						</div>
 
 						<button
 							onclick={(e) => removeCharacter(e, character.id)}
-							class="absolute top-4 right-4 rounded p-1.5 text-neutral-600 opacity-0 transition group-hover:opacity-100 hover:bg-red-900/40 hover:text-red-400"
+							class="absolute top-4 right-4 rounded p-1.5 opacity-0 transition group-hover:opacity-100 hover:bg-red-900/40 hover:text-red-400"
+							style="color: var(--text-muted);"
 							title="Remove character"
 						>
 							<svg

@@ -39,22 +39,25 @@
 	};
 </script>
 
-<div class="min-h-screen bg-neutral-900 p-8 pl-16 text-neutral-200">
+<div class="min-h-screen p-8" style="color: var(--text-primary);">
 	<div class="mx-auto max-w-4xl">
-		<!-- Sticky Action Bar -->
+		<!-- Sticky Action Bar (attached below global nav) -->
 		<div
-			class="sticky top-0 z-10 -mx-8 mb-6 flex gap-2 border-b border-neutral-700 bg-neutral-900/95 px-8 py-3 backdrop-blur"
+			class="sticky top-[49px] z-10 -mx-8 mb-6 flex gap-2 border-b px-8 py-3 backdrop-blur"
+			style="background-color: color-mix(in srgb, var(--bg-base) 92%, transparent); border-color: var(--border-color);"
 		>
 			<button
 				onclick={birth}
-				class="rounded bg-amber-700 px-5 py-2 text-sm font-semibold text-black transition hover:bg-amber-600"
+				class="rounded px-5 py-2 text-sm font-semibold transition"
+				style="font-family: var(--font-heading); background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark)); color: var(--bg-base);"
 			>
 				Birth A Wretch
 			</button>
 			{#if character}
 				<button
 					onclick={preserve}
-					class="rounded border border-green-700 bg-green-900/20 px-5 py-2 text-sm font-semibold text-green-400 transition hover:bg-green-800/30"
+					class="preserve-btn rounded border px-5 py-2 text-sm font-semibold transition hover:opacity-80"
+					style="font-family: var(--font-heading);"
 				>
 					Preserve This Soul
 				</button>
@@ -63,8 +66,10 @@
 
 		{#if !character}
 			<div class="flex flex-col items-center justify-center gap-6 py-32 text-center">
-				<h1 class="text-5xl font-bold tracking-wide">Grimwhite</h1>
-				<p class="max-w-md text-lg text-neutral-400">
+				<h1 class="font-title text-6xl tracking-wider" style="color: var(--color-gold);">
+					Grimwhite
+				</h1>
+				<p class="max-w-md text-lg" style="color: var(--text-secondary);">
 					Random character generator. Press the button above to birth a wretch into the world.
 				</p>
 			</div>
@@ -76,11 +81,13 @@
 			<div class="mb-8 flex items-start gap-5">
 				<!-- Portrait placeholder -->
 				<div
-					class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-700 bg-neutral-800"
+					class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border"
+					style="border-color: var(--border-color); background-color: var(--bg-surface);"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						class="h-10 w-10 text-neutral-600"
+						class="h-10 w-10"
+						style="color: var(--text-muted);"
 						viewBox="0 0 24 24"
 						fill="currentColor"
 					>
@@ -93,58 +100,59 @@
 				<!-- Name / Level / Summary -->
 				<div class="min-w-0 flex-1">
 					<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
-					<p class="text-lg tracking-wide text-amber-400 uppercase">
+					<p class="text-lg tracking-wide uppercase" style="color: var(--color-gold);">
 						Level {character.level} — {character.archetype}
 					</p>
 					{#if character.summary}
-						<p class="mt-2 text-neutral-400 italic">{character.summary}</p>
+						<p class="mt-2 italic" style="color: var(--text-secondary);">{character.summary}</p>
 					{/if}
 				</div>
 			</div>
 
-			<!-- Attributes -->
+			<!-- Attributes (wax-seal badges) -->
 			<div class="mb-8">
 				<div class="grid grid-cols-2 gap-x-8 gap-y-0 md:grid-cols-[1fr_1fr_auto_1fr_1fr]">
-					<!-- Brawns -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
-							{attributeLabels.brawns}
+					{#each ['brawns', 'agility'] as attr}
+						<div
+							class="wax-seal rounded-lg p-4 text-center"
+							style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
+						>
+							<div
+								class="text-xs font-semibold tracking-widest uppercase"
+								style="font-family: var(--font-heading); color: var(--text-secondary);"
+							>
+								{attributeLabels[attr as AttributeName]}
+							</div>
+							<div
+								class="text-3xl font-bold"
+								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+							>
+								{character.attributes[attr as AttributeName]}
+							</div>
 						</div>
-						<div class="text-3xl font-bold text-amber-400">
-							{character.attributes.brawns}
-						</div>
-					</div>
-					<!-- Agility -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
-							{attributeLabels.agility}
-						</div>
-						<div class="text-3xl font-bold text-amber-400">
-							{character.attributes.agility}
-						</div>
-					</div>
-					<!-- Spacer (desktop only) -->
+					{/each}
 					<div class="hidden md:block"></div>
-					<!-- Wits -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
-							{attributeLabels.wits}
+					{#each ['wits', 'presence'] as attr}
+						<div
+							class="wax-seal rounded-lg p-4 text-center"
+							style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
+						>
+							<div
+								class="text-xs font-semibold tracking-widest uppercase"
+								style="font-family: var(--font-heading); color: var(--text-secondary);"
+							>
+								{attributeLabels[attr as AttributeName]}
+							</div>
+							<div
+								class="text-3xl font-bold"
+								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
+							>
+								{character.attributes[attr as AttributeName]}
+							</div>
 						</div>
-						<div class="text-3xl font-bold text-amber-400">
-							{character.attributes.wits}
-						</div>
-					</div>
-					<!-- Presence -->
-					<div class="rounded border border-neutral-700 bg-neutral-800 p-4 text-center">
-						<div class="text-sm tracking-wide text-neutral-400 uppercase">
-							{attributeLabels.presence}
-						</div>
-						<div class="text-3xl font-bold text-amber-400">
-							{character.attributes.presence}
-						</div>
-					</div>
+					{/each}
 
-					<!-- Bloodied row: spans first 2 cols -->
+					<!-- Bloodied row -->
 					<div class="col-span-2 flex flex-col items-center py-2">
 						<div class="flex w-full items-center gap-2 px-4">
 							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
@@ -154,9 +162,8 @@
 							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
 						</div>
 					</div>
-					<!-- Spacer (desktop only) -->
 					<div class="hidden md:block"></div>
-					<!-- Rattled row: spans last 2 cols -->
+					<!-- Rattled row -->
 					<div class="col-span-2 flex flex-col items-center py-2">
 						<div class="flex w-full items-center gap-2 px-4">
 							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
@@ -171,47 +178,76 @@
 
 			<!-- Grit, Sanity & Essence -->
 			<div class="mb-8 flex flex-wrap gap-6">
-				<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
-					<span class="text-sm text-neutral-400">Grit</span>
-					<span class="ml-2 text-xl font-bold text-amber-400">{character.grit}</span>
+				<div
+					class="rounded border px-5 py-3"
+					style="border-color: var(--border-color); background-color: var(--bg-surface);"
+				>
+					<span class="text-sm" style="color: var(--text-secondary);">Grit</span>
+					<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
+						>{character.grit}</span
+					>
 				</div>
-				<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
-					<span class="text-sm text-neutral-400">Sanity</span>
-					<span class="ml-2 text-xl font-bold text-amber-400">{character.sanity}</span>
+				<div
+					class="rounded border px-5 py-3"
+					style="border-color: var(--border-color); background-color: var(--bg-surface);"
+				>
+					<span class="text-sm" style="color: var(--text-secondary);">Sanity</span>
+					<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
+						>{character.sanity}</span
+					>
 				</div>
 				{#if essence !== null}
-					<div class="rounded border border-neutral-700 bg-neutral-800 px-5 py-3">
-						<span class="text-sm text-neutral-400">Essence Pool</span>
-						<span class="ml-2 text-xl font-bold text-amber-400">{essence}</span>
+					<div
+						class="rounded border px-5 py-3"
+						style="border-color: var(--border-color); background-color: var(--bg-surface);"
+					>
+						<span class="text-sm" style="color: var(--text-secondary);">Essence Pool</span>
+						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);">{essence}</span>
 					</div>
 				{/if}
 			</div>
 
 			<!-- Traits -->
 			<div class="mb-8 space-y-4">
-				<!-- Ancestry -->
 				<div>
-					<div class="font-semibold text-neutral-400">Ancestry</div>
+					<div
+						class="font-semibold"
+						style="font-family: var(--font-heading); color: var(--text-secondary);"
+					>
+						Ancestry
+					</div>
 					<div class="flex items-center gap-3">
 						<span>{character.ancestry.name}</span>
 						{#each character.ancestry.assignedAttributes as attr}
-							<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+							<span
+								class="rounded px-2 py-1 text-xs uppercase"
+								style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
+							>
 								{attributeLabels[attr]}
 							</span>
 						{/each}
 					</div>
 				</div>
 
-				<!-- Vocation -->
 				<div>
-					<div class="font-semibold text-neutral-400">Vocation</div>
+					<div
+						class="font-semibold"
+						style="font-family: var(--font-heading); color: var(--text-secondary);"
+					>
+						Vocation
+					</div>
 					<div class="flex items-center gap-3">
 						<span>{character.vocation.name}</span>
 						{#if character.archetype === 'deft'}
-							<span class="text-xs text-neutral-500 italic">Applies to any attribute</span>
+							<span class="text-xs italic" style="color: var(--text-muted);"
+								>Applies to any attribute</span
+							>
 						{:else}
 							{#each character.vocation.assignedAttributes as attr}
-								<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+								<span
+									class="rounded px-2 py-1 text-xs uppercase"
+									style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
+								>
 									{attributeLabels[attr]}
 								</span>
 							{/each}
@@ -219,13 +255,20 @@
 					</div>
 				</div>
 
-				<!-- Affiliation -->
 				<div>
-					<div class="font-semibold text-neutral-400">Affiliation</div>
+					<div
+						class="font-semibold"
+						style="font-family: var(--font-heading); color: var(--text-secondary);"
+					>
+						Affiliation
+					</div>
 					<div class="flex items-center gap-3">
 						<span>{character.affiliations[0]?.name}</span>
 						{#each character.affiliations[0]?.assignedAttributes ?? [] as attr}
-							<span class="rounded bg-amber-800 px-2 py-1 text-xs uppercase">
+							<span
+								class="rounded px-2 py-1 text-xs uppercase"
+								style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
+							>
 								{attributeLabels[attr]}
 							</span>
 						{/each}
@@ -235,9 +278,14 @@
 
 			<!-- Archetype Feature -->
 			{#if feature}
-				<div class="mb-8 rounded border border-neutral-700 bg-neutral-800 p-5">
-					<h3 class="mb-2 text-lg font-semibold text-amber-400">{feature.name}</h3>
-					<div class="prose prose-sm max-w-none prose-invert prose-amber">
+				<div
+					class="mb-8 rounded-lg border p-5"
+					style="border-color: var(--border-color); background-color: var(--bg-surface);"
+				>
+					<h3 class="mb-2 text-lg font-semibold" style="color: var(--color-gold);">
+						{feature.name}
+					</h3>
+					<div class="prose prose-sm max-w-none">
 						{@html marked(feature.description)}
 					</div>
 				</div>
@@ -245,26 +293,31 @@
 
 			<!-- Moves -->
 			<div class="mb-8">
-				<h3 class="mb-3 text-xl font-semibold text-amber-400">
+				<h3 class="mb-3 text-xl font-semibold" style="color: var(--color-gold);">
 					{MoveNames[character.archetype]}
 				</h3>
 
 				<div class="space-y-4">
 					{#each character.moves as slot}
-						<div class="rounded border border-neutral-700 bg-neutral-900 p-4">
-							<div class="mb-2 text-sm tracking-wide text-neutral-500 uppercase">
+						<div
+							class="rounded-lg border p-4"
+							style="border-color: var(--border-color); background: var(--bg-elevated);"
+						>
+							<div
+								class="mb-2 text-sm tracking-wide uppercase"
+								style="font-family: var(--font-heading); color: var(--text-muted);"
+							>
 								{slot.type}
 							</div>
 
 							{#each slot.moves as move}
 								<div
-									class={`mb-2 flex items-center gap-2 rounded px-3 py-2 ${
-										move.active === true
-											? 'bg-amber-700 text-black'
-											: move.active === false
-												? 'bg-neutral-800 text-neutral-400'
-												: 'bg-neutral-800'
-									}`}
+									class="mb-2 flex items-center gap-2 rounded px-3 py-2"
+									style={move.active === true
+										? `background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);`
+										: move.active === false
+											? `background-color: var(--bg-surface); color: var(--text-muted);`
+											: `background-color: var(--bg-surface);`}
 								>
 									<span class="flex-1">{move.name}</span>
 									{#if move.active !== undefined}
@@ -281,8 +334,8 @@
 
 			<!-- Experiences -->
 			<div class="mb-8">
-				<h3 class="mb-3 text-xl font-semibold text-amber-400">Experiences</h3>
-				<ul class="list-inside list-disc text-neutral-300">
+				<h3 class="mb-3 text-xl font-semibold" style="color: var(--color-gold);">Experiences</h3>
+				<ul class="list-inside list-disc" style="color: var(--text-primary);">
 					{#each character.experiences as exp}
 						<li>{exp.name}</li>
 					{/each}
