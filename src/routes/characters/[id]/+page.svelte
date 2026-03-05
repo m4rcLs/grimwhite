@@ -9,7 +9,7 @@
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { characterStore } from '$lib/stores/characterStore';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { untrack } from 'svelte';
 
 	let { params } = $props();
 
@@ -27,13 +27,21 @@
 		presence: 'Presence'
 	};
 
-	onMount(() => {
+	$effect(() => {
+		const id = params.id;
+		// Reset state when navigating to a different character
+		untrack(() => {
+			editing = false;
+			notFound = false;
+		});
+
 		const unsubscribe = characterStore.subscribe((chars) => {
-			const found = chars.find((c) => c.id === params.id);
+			const found = chars.find((c) => c.id === id);
 			if (found) {
 				character = found;
-				// Keep draft in sync if not editing
-				if (!editing) draft = JSON.parse(JSON.stringify(found));
+				untrack(() => {
+					if (!editing) draft = JSON.parse(JSON.stringify(found));
+				});
 			} else {
 				notFound = true;
 			}
