@@ -3,8 +3,6 @@
 	import {
 		type Character,
 		type AttributeName,
-		type MoveSlot,
-		type Experience,
 		MoveNames
 	} from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
@@ -15,12 +13,21 @@
 	import { WISE_PREFIX, WISE_SUFFIX } from '$lib/content/moves/wise';
 	import { characterStore } from '$lib/stores/characterStore';
 	import TiptapEditor from '$lib/components/TiptapEditor.svelte';
+	import WaxSealAttribute from '$lib/components/WaxSealAttribute.svelte';
+	import StatBadge from '$lib/components/StatBadge.svelte';
+	import StatusRow from '$lib/components/StatusRow.svelte';
+	import TraitRow from '$lib/components/TraitRow.svelte';
+	import MoveSlotCard from '$lib/components/MoveSlotCard.svelte';
+	import CharacterPortrait from '$lib/components/CharacterPortrait.svelte';
+	import XpTracker from '$lib/components/XpTracker.svelte';
+	import ArchetypeFeatureCard from '$lib/components/ArchetypeFeatureCard.svelte';
+	import PortraitUploadModal from '$lib/components/PortraitUploadModal.svelte';
+	import LevelUpModal from '$lib/components/LevelUpModal.svelte';
+	import NotesModal from '$lib/components/NotesModal.svelte';
 	import {
 		canLevelUp,
 		levelUp,
 		applyAttributeIncrease,
-		levelUpSummary,
-		levelGrantsAttributeIncrease,
 		canIncreaseAttribute,
 		MAX_LEVEL,
 		XP_THRESHOLDS
@@ -51,13 +58,6 @@
 	let draft: Character | null = $state(null);
 
 	const ATTRIBUTE_NAMES: AttributeName[] = ['brawns', 'agility', 'wits', 'presence'];
-
-	const attributeLabels: Record<AttributeName, string> = {
-		brawns: 'Brawns',
-		agility: 'Agility',
-		wits: 'Wits',
-		presence: 'Presence'
-	};
 
 	$effect(() => {
 		const id = params.id;
@@ -152,10 +152,8 @@
 
 	let confirmingDelete = $state(false);
 	let notesOpen = $state(false);
-	let notesDraft = $state('');
 	let levelUpOpen = $state(false);
 	let levelUpResult: import('$lib/generator/leveling').LevelUpResult | null = $state(null);
-	let selectedAttribute: AttributeName | null = $state(null);
 
 	function removeCharacter() {
 		if (!character) return;
@@ -167,28 +165,12 @@
 		if (!character || !canLevelUp(character)) return;
 		const result = levelUp(character);
 		levelUpResult = result;
-		selectedAttribute = null;
 		levelUpOpen = true;
-	}
-
-	function confirmLevelUp() {
-		if (!levelUpResult) return;
-		if (levelUpResult.grantsAttribute) {
-			if (!selectedAttribute) return;
-			const withAttr = applyAttributeIncrease(levelUpResult.character, selectedAttribute);
-			characterStore.updateCharacter(withAttr);
-		} else {
-			characterStore.updateCharacter(levelUpResult.character);
-		}
-		levelUpOpen = false;
-		levelUpResult = null;
-		selectedAttribute = null;
 	}
 
 	function cancelLevelUp() {
 		levelUpOpen = false;
 		levelUpResult = null;
-		selectedAttribute = null;
 	}
 
 	function randomFrom<T>(arr: T[]): T {
@@ -244,132 +226,24 @@
 		characterStore.updateCharacter(updated);
 		levelUpOpen = false;
 		levelUpResult = null;
-		selectedAttribute = null;
 	}
 
 	function openNotes() {
 		if (!character) return;
-		notesDraft = character.notes ?? '';
 		notesOpen = true;
-	}
-
-	function saveNotes() {
-		if (!character) return;
-		characterStore.updateCharacter({ ...character, notes: notesDraft });
-		notesOpen = false;
 	}
 
 	function cancelNotes() {
 		notesOpen = false;
 	}
 
-	// Portrait upload/crop state
 	let portraitModalOpen = $state(false);
-	let portraitImg: HTMLImageElement | null = $state(null);
-	let cropCanvas: HTMLCanvasElement | null = $state(null);
-	let cropOffsetX = $state(0);
-	let cropOffsetY = $state(0);
-	let cropScale = $state(1);
-	let isDragging = $state(false);
-	let dragStartX = $state(0);
-	let dragStartY = $state(0);
-	let dragStartOffsetX = $state(0);
-	let dragStartOffsetY = $state(0);
-
-	const PORTRAIT_SIZE = 256;
-
-	// Redraw canvas whenever crop params or canvas ref change
-	$effect(() => {
-		if (cropCanvas && portraitImg) {
-			void cropOffsetX;
-			void cropOffsetY;
-			void cropScale;
-			drawCropPreview();
-		}
-	});
 
 	function openPortraitModal() {
 		portraitModalOpen = true;
-		portraitImg = null;
-		cropOffsetX = 0;
-		cropOffsetY = 0;
-		cropScale = 1;
 	}
 
-	function handlePortraitFile(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const file = input.files?.[0];
-		if (!file) return;
-		const reader = new FileReader();
-		reader.onload = () => {
-			const img = new Image();
-			img.onload = () => {
-				portraitImg = img;
-				// Fit image so the shorter side fills the frame
-				const minDim = Math.min(img.width, img.height);
-				cropScale = PORTRAIT_SIZE / minDim;
-				cropOffsetX = (PORTRAIT_SIZE - img.width * cropScale) / 2;
-				cropOffsetY = (PORTRAIT_SIZE - img.height * cropScale) / 2;
-				drawCropPreview();
-			};
-			img.src = reader.result as string;
-		};
-		reader.readAsDataURL(file);
-	}
-
-	function drawCropPreview() {
-		if (!cropCanvas || !portraitImg) return;
-		const ctx = cropCanvas.getContext('2d');
-		if (!ctx) return;
-		ctx.clearRect(0, 0, PORTRAIT_SIZE, PORTRAIT_SIZE);
-		ctx.fillStyle = '#1a1a1a';
-		ctx.fillRect(0, 0, PORTRAIT_SIZE, PORTRAIT_SIZE);
-		ctx.drawImage(
-			portraitImg,
-			cropOffsetX,
-			cropOffsetY,
-			portraitImg.width * cropScale,
-			portraitImg.height * cropScale
-		);
-	}
-
-	function onCropWheel(e: WheelEvent) {
-		e.preventDefault();
-		if (!portraitImg) return;
-		const delta = e.deltaY > 0 ? 0.95 : 1.05;
-		const newScale = Math.max(0.1, Math.min(10, cropScale * delta));
-		// Zoom towards center
-		const cx = PORTRAIT_SIZE / 2;
-		const cy = PORTRAIT_SIZE / 2;
-		cropOffsetX = cx - ((cx - cropOffsetX) / cropScale) * newScale;
-		cropOffsetY = cy - ((cy - cropOffsetY) / cropScale) * newScale;
-		cropScale = newScale;
-		drawCropPreview();
-	}
-
-	function onCropPointerDown(e: PointerEvent) {
-		isDragging = true;
-		dragStartX = e.clientX;
-		dragStartY = e.clientY;
-		dragStartOffsetX = cropOffsetX;
-		dragStartOffsetY = cropOffsetY;
-		(e.target as HTMLElement).setPointerCapture(e.pointerId);
-	}
-
-	function onCropPointerMove(e: PointerEvent) {
-		if (!isDragging) return;
-		cropOffsetX = dragStartOffsetX + (e.clientX - dragStartX);
-		cropOffsetY = dragStartOffsetY + (e.clientY - dragStartY);
-		drawCropPreview();
-	}
-
-	function onCropPointerUp() {
-		isDragging = false;
-	}
-
-	function savePortrait() {
-		if (!cropCanvas) return;
-		const dataUrl = cropCanvas.toDataURL('image/webp', 0.85);
+	function savePortrait(dataUrl: string) {
 		if (editing && draft) {
 			draft.portrait = dataUrl;
 		} else if (character) {
@@ -428,14 +302,11 @@
 		characterStore.updateCharacter({ ...character, xp: newXp });
 	}
 
-	function xpForNextLevel(char: Character): number | null {
-		if (char.level >= MAX_LEVEL) return null;
-		return XP_THRESHOLDS[char.level + 1] ?? null;
-	}
-
 	function fillXpToNextLevel() {
 		if (!character) return;
-		const needed = xpForNextLevel(character);
+		const nextLevel = character.level + 1;
+		if (character.level >= MAX_LEVEL) return;
+		const needed = XP_THRESHOLDS[nextLevel] ?? null;
 		if (needed === null) return;
 		characterStore.updateCharacter({ ...character, xp: needed });
 	}
@@ -537,52 +408,12 @@
 			<!-- Header with Portrait -->
 			<div class="mb-8 flex items-start gap-5">
 				<!-- Portrait -->
-				<button
-					class="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border transition"
-					style="border-color: var(--border-color); background-color: var(--bg-surface);"
-					onclick={() => {
-						if (editing) openPortraitModal();
-					}}
-					disabled={!editing}
-					type="button"
-				>
-					{#if displayChar.portrait}
-						<img
-							src={displayChar.portrait}
-							alt={displayChar.name}
-							class="h-full w-full object-cover"
-						/>
-					{:else}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-10 w-10"
-							style="color: var(--text-muted);"
-							viewBox="0 0 24 24"
-							fill="currentColor"
-						>
-							<path
-								d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-							/>
-						</svg>
-					{/if}
-					{#if editing}
-						<div
-							class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition group-hover:opacity-100"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								style="color: var(--color-gold);"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-							>
-								<path
-									d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 0011.586 3H8.414a1 1 0 00-.707.293L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-								/>
-							</svg>
-						</div>
-					{/if}
-				</button>
+				<CharacterPortrait
+					portrait={displayChar.portrait}
+					name={displayChar.name}
+					{editing}
+					onclick={openPortraitModal}
+				/>
 
 				<!-- Name / Level / Summary -->
 				<div class="min-w-0 flex-1">
@@ -613,296 +444,82 @@
 				</div>
 
 				<!-- XP Tracker -->
-				<div
-					class="flex shrink-0 flex-col items-center gap-1 rounded-lg border p-3"
-					style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border-color: var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), 0 2px 8px rgba(0,0,0,0.2);"
-				>
-					<span
-						class="text-xs font-semibold tracking-widest uppercase"
-						style="font-family: var(--font-heading); color: var(--text-secondary);"
-					>
-						XP
-					</span>
-					<div class="flex items-center gap-2">
-						{#if !editing}
-							<button
-								onclick={() => adjustXp(-1)}
-								class="flex h-6 w-6 items-center justify-center rounded text-sm font-bold transition hover:opacity-80"
-								style="background-color: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-color);"
-								disabled={(character.xp ?? 0) <= 0}
-							>
-								−
-							</button>
-						{/if}
-						<span
-							class="text-2xl font-bold"
-							style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-						>
-							{character.xp ?? 0}
-						</span>
-						{#if !editing}
-							<button
-								onclick={() => adjustXp(1)}
-								class="flex h-6 w-6 items-center justify-center rounded text-sm font-bold transition hover:opacity-80"
-								style="background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark)); color: var(--bg-base);"
-							>
-								+
-							</button>
-						{/if}
-					</div>
-					{#if xpForNextLevel(displayChar) !== null}
-						<span class="text-xs" style="color: var(--text-muted);">
-							/ {xpForNextLevel(displayChar)}
-						</span>
-					{:else}
-						<span class="text-xs" style="color: var(--text-muted);">MAX</span>
-					{/if}
-					{#if !editing && xpForNextLevel(displayChar) !== null && (character.xp ?? 0) < (xpForNextLevel(displayChar) ?? 0)}
-						<button
-							onclick={fillXpToNextLevel}
-							class="mt-1 flex h-6 items-center justify-center rounded px-1.5 text-xs font-bold transition hover:opacity-80"
-							style="background-color: var(--bg-elevated); color: var(--color-gold); border: 1px solid var(--border-color);"
-							title="Fill XP to next level threshold"
-						>
-							⇈
-						</button>
-					{/if}
-				</div>
+				<XpTracker
+					{character}
+					{editing}
+					onadjustxp={adjustXp}
+					onfillxp={fillXpToNextLevel}
+				/>
 			</div>
 
 			<!-- Attributes -->
 			<div class="mb-8">
 				<div class="grid grid-cols-2 gap-x-8 gap-y-0 md:grid-cols-[1fr_1fr_auto_1fr_1fr]">
-					<!-- Brawns -->
-					<div
-						class="wax-seal rounded-lg p-4 text-center"
-						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
-					>
-						<div
-							class="text-xs font-semibold tracking-widest uppercase"
-							style="font-family: var(--font-heading); color: var(--text-secondary);"
-						>
-							{attributeLabels.brawns}
-						</div>
-						{#if editing}
-							<input
-								type="number"
-								min="0"
-								max="4"
-								bind:value={draft.attributes.brawns}
-								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
-								style="border-color: var(--border-color); color: var(--color-gold);"
-							/>
-						{:else}
-							<div
-								class="text-3xl font-bold"
-								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-							>
-								{displayChar.attributes.brawns}
-							</div>
-						{/if}
-						{#if displayChar.level >= 5}
-							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
-								<input
-									type="checkbox"
-									checked={(displayChar.markedAttributes ?? []).includes('brawns')}
-									onchange={() => toggleMarkedAttribute('brawns')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
-									style="border-color: var(--color-gold); background-color: var(--bg-base);"
-								/>
-								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
-									>Marked</span
-								>
-							</label>
-						{/if}
-					</div>
-					<!-- Agility -->
-					<div
-						class="wax-seal rounded-lg p-4 text-center"
-						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
-					>
-						<div
-							class="text-xs font-semibold tracking-widest uppercase"
-							style="font-family: var(--font-heading); color: var(--text-secondary);"
-						>
-							{attributeLabels.agility}
-						</div>
-						{#if editing}
-							<input
-								type="number"
-								min="0"
-								max="4"
-								bind:value={draft.attributes.agility}
-								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
-								style="border-color: var(--border-color); color: var(--color-gold);"
-							/>
-						{:else}
-							<div
-								class="text-3xl font-bold"
-								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-							>
-								{displayChar.attributes.agility}
-							</div>
-						{/if}
-						{#if displayChar.level >= 5}
-							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
-								<input
-									type="checkbox"
-									checked={(displayChar.markedAttributes ?? []).includes('agility')}
-									onchange={() => toggleMarkedAttribute('agility')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
-									style="border-color: var(--color-gold); background-color: var(--bg-base);"
-								/>
-								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
-									>Marked</span
-								>
-							</label>
-						{/if}
-					</div>
+					<WaxSealAttribute
+						attribute="brawns"
+						value={displayChar.attributes.brawns}
+						{editing}
+						level={displayChar.level}
+						markedAttributes={displayChar.markedAttributes ?? []}
+						onvaluechange={(v) => { if (draft) draft.attributes.brawns = v; }}
+						ontogglemarked={toggleMarkedAttribute}
+					/>
+					<WaxSealAttribute
+						attribute="agility"
+						value={displayChar.attributes.agility}
+						{editing}
+						level={displayChar.level}
+						markedAttributes={displayChar.markedAttributes ?? []}
+						onvaluechange={(v) => { if (draft) draft.attributes.agility = v; }}
+						ontogglemarked={toggleMarkedAttribute}
+					/>
 					<!-- Spacer (desktop only) -->
 					<div class="hidden md:block"></div>
-					<!-- Wits -->
-					<div
-						class="wax-seal rounded-lg p-4 text-center"
-						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
-					>
-						<div
-							class="text-xs font-semibold tracking-widest uppercase"
-							style="font-family: var(--font-heading); color: var(--text-secondary);"
-						>
-							{attributeLabels.wits}
-						</div>
-						{#if editing}
-							<input
-								type="number"
-								min="0"
-								max="4"
-								bind:value={draft.attributes.wits}
-								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
-								style="border-color: var(--border-color); color: var(--color-gold);"
-							/>
-						{:else}
-							<div
-								class="text-3xl font-bold"
-								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-							>
-								{displayChar.attributes.wits}
-							</div>
-						{/if}
-						{#if displayChar.level >= 5}
-							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
-								<input
-									type="checkbox"
-									checked={(displayChar.markedAttributes ?? []).includes('wits')}
-									onchange={() => toggleMarkedAttribute('wits')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
-									style="border-color: var(--color-gold); background-color: var(--bg-base);"
-								/>
-								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
-									>Marked</span
-								>
-							</label>
-						{/if}
-					</div>
-					<!-- Presence -->
-					<div
-						class="wax-seal rounded-lg p-4 text-center"
-						style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
-					>
-						<div
-							class="text-xs font-semibold tracking-widest uppercase"
-							style="font-family: var(--font-heading); color: var(--text-secondary);"
-						>
-							{attributeLabels.presence}
-						</div>
-						{#if editing}
-							<input
-								type="number"
-								min="0"
-								max="4"
-								bind:value={draft.attributes.presence}
-								class="mx-auto mt-1 w-16 rounded border bg-transparent text-center text-3xl font-bold outline-none"
-								style="border-color: var(--border-color); color: var(--color-gold);"
-							/>
-						{:else}
-							<div
-								class="text-3xl font-bold"
-								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-							>
-								{displayChar.attributes.presence}
-							</div>
-						{/if}
-						{#if displayChar.level >= 5}
-							<label class="mt-2 flex cursor-pointer items-center justify-center gap-1">
-								<input
-									type="checkbox"
-									checked={(displayChar.markedAttributes ?? []).includes('presence')}
-									onchange={() => toggleMarkedAttribute('presence')}
-									class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 transition"
-									style="border-color: var(--color-gold); background-color: var(--bg-base);"
-								/>
-								<span class="text-[10px] tracking-wide uppercase" style="color: var(--text-muted);"
-									>Marked</span
-								>
-							</label>
-						{/if}
-					</div>
+					<WaxSealAttribute
+						attribute="wits"
+						value={displayChar.attributes.wits}
+						{editing}
+						level={displayChar.level}
+						markedAttributes={displayChar.markedAttributes ?? []}
+						onvaluechange={(v) => { if (draft) draft.attributes.wits = v; }}
+						ontogglemarked={toggleMarkedAttribute}
+					/>
+					<WaxSealAttribute
+						attribute="presence"
+						value={displayChar.attributes.presence}
+						{editing}
+						level={displayChar.level}
+						markedAttributes={displayChar.markedAttributes ?? []}
+						onvaluechange={(v) => { if (draft) draft.attributes.presence = v; }}
+						ontogglemarked={toggleMarkedAttribute}
+					/>
 
-					<!-- Bloodied row: spans first 2 cols -->
-					<div class="col-span-2 flex flex-col items-center py-2">
-						<div class="flex w-full items-center gap-2 px-4">
-							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
-							<label class="flex cursor-pointer items-center gap-2">
-								<input
-									type="checkbox"
-									checked={displayChar.bloodied}
-									onchange={() => {
-										if (editing && draft) {
-											draft.bloodied = !draft.bloodied;
-										} else if (character) {
-											characterStore.updateCharacter({
-												...character,
-												bloodied: !character.bloodied
-											});
-										}
-									}}
-									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-red-700 transition checked:bg-red-700"
-									style="background-color: var(--bg-base);"
-								/>
-								<span class="text-xs font-semibold tracking-wide text-red-400 uppercase"
-									>Bloodied</span
-								>
-							</label>
-							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
-						</div>
-					</div>
+					<StatusRow
+						label="Bloodied"
+						color="red"
+						checked={displayChar.bloodied}
+						onchange={() => {
+							if (editing && draft) {
+								draft.bloodied = !draft.bloodied;
+							} else if (character) {
+								characterStore.updateCharacter({ ...character, bloodied: !character.bloodied });
+							}
+						}}
+					/>
 					<!-- Spacer (desktop only) -->
 					<div class="hidden md:block"></div>
-					<!-- Rattled row: spans last 2 cols -->
-					<div class="col-span-2 flex flex-col items-center py-2">
-						<div class="flex w-full items-center gap-2 px-4">
-							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
-							<label class="flex cursor-pointer items-center gap-2">
-								<input
-									type="checkbox"
-									checked={displayChar.rattled}
-									onchange={() => {
-										if (editing && draft) {
-											draft.rattled = !draft.rattled;
-										} else if (character) {
-											characterStore.updateCharacter({ ...character, rattled: !character.rattled });
-										}
-									}}
-									class="h-4 w-4 cursor-pointer appearance-none rounded border-2 border-violet-700 transition checked:bg-violet-700"
-									style="background-color: var(--bg-base);"
-								/>
-								<span class="text-xs font-semibold tracking-wide text-violet-400 uppercase"
-									>Rattled</span
-								>
-							</label>
-							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
-						</div>
-					</div>
+					<StatusRow
+						label="Rattled"
+						color="violet"
+						checked={displayChar.rattled}
+						onchange={() => {
+							if (editing && draft) {
+								draft.rattled = !draft.rattled;
+							} else if (character) {
+								characterStore.updateCharacter({ ...character, rattled: !character.rattled });
+							}
+						}}
+					/>
 
 					<!-- Spark row: full width, level 5+ only -->
 					{#if displayChar.level >= 5}
@@ -931,251 +548,61 @@
 
 			<!-- Grit, Sanity & Essence -->
 			<div class="mb-8 flex flex-wrap gap-6">
-				<div
-					class="rounded px-5 py-3"
-					style="background: var(--bg-surface); border: 1px solid var(--border-color);"
-				>
-					<span
-						class="text-sm"
-						style="color: var(--text-secondary); font-family: var(--font-heading);">Grit</span
-					>
-					{#if editing}
-						<input
-							type="number"
-							min="0"
-							bind:value={draft.grit}
-							class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
-							style="border-color: var(--border-color); color: var(--color-gold);"
-						/>
-					{:else}
-						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
-							>{displayChar.grit}</span
-						>
-					{/if}
-				</div>
-				<div
-					class="rounded px-5 py-3"
-					style="background: var(--bg-surface); border: 1px solid var(--border-color);"
-				>
-					<span
-						class="text-sm"
-						style="color: var(--text-secondary); font-family: var(--font-heading);">Sanity</span
-					>
-					{#if editing}
-						<input
-							type="number"
-							min="0"
-							bind:value={draft.sanity}
-							class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
-							style="border-color: var(--border-color); color: var(--color-gold);"
-						/>
-					{:else}
-						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
-							>{displayChar.sanity}</span
-						>
-					{/if}
-				</div>
+				<StatBadge
+					label="Grit"
+					value={displayChar.grit}
+					{editing}
+					onvaluechange={(v) => { if (draft) draft.grit = v; }}
+				/>
+				<StatBadge
+					label="Sanity"
+					value={displayChar.sanity}
+					{editing}
+					onvaluechange={(v) => { if (draft) draft.sanity = v; }}
+				/>
 				{#if maxEssence && maxEssence > 0}
-					<div
-						class="rounded px-5 py-3"
-						style="background: var(--bg-surface); border: 1px solid var(--border-color);"
-					>
-						<span
-							class="text-sm"
-							style="color: var(--text-secondary); font-family: var(--font-heading);">Essence</span
-						>
-
-						{#if editing && maxEssence > 0}
-							<input
-								type="number"
-								min="0"
-								bind:value={currentEssence}
-								class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
-								style="border-color: var(--border-color); color: var(--color-gold);"
-							/>
-						{:else}
-							<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
-								>{currentEssence}/{maxEssence}</span
-							>
-						{/if}
-					</div>
+					<StatBadge
+						label="Essence"
+						value={editing && maxEssence > 0 ? currentEssence : `${currentEssence}/${maxEssence}`}
+						{editing}
+						onvaluechange={(v) => { currentEssence = v; }}
+					/>
 				{/if}
 			</div>
 
 			<!-- Traits -->
 			<div class="mb-8 space-y-4">
-				<!-- Ancestry -->
-				<div>
-					<div
-						class="font-semibold"
-						style="color: var(--text-secondary); font-family: var(--font-heading);"
-					>
-						Ancestry
-					</div>
-					<div class="flex items-center gap-3">
-						{#if editing}
-							<input
-								type="text"
-								bind:value={draft.ancestry.name}
-								class="rounded border bg-transparent px-2 py-1 outline-none"
-								style="border-color: var(--border-color); color: var(--text-primary);"
-							/>
-							{@const ancestryLimit = getAncestryAttributeLimit(draft.ancestry.name)}
-							{#if ancestryLimit === 0}
-								<span class="text-xs italic" style="color: var(--text-muted);"
-									>No attribute bonuses</span
-								>
-							{:else}
-								<div class="flex gap-1">
-									{#each ATTRIBUTE_NAMES as attr}
-										<button
-											onclick={() => toggleTraitAttribute('ancestry', attr)}
-											class="rounded px-2 py-1 text-xs uppercase transition"
-											style={draft.ancestry.assignedAttributes.includes(attr)
-												? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
-												: draft.ancestry.assignedAttributes.length >= ancestryLimit
-													? 'background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;'
-													: 'background: var(--bg-elevated); color: var(--text-secondary);'}
-										>
-											{attributeLabels[attr]}
-										</button>
-									{/each}
-								</div>
-							{/if}
-						{:else}
-							<span>{displayChar.ancestry.name}</span>
-							{#each displayChar.ancestry.assignedAttributes as attr}
-								<span
-									class="rounded px-2 py-1 text-xs uppercase"
-									style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-								>
-									{attributeLabels[attr]}
-								</span>
-							{/each}
-						{/if}
-					</div>
-				</div>
-
-				<!-- Vocation -->
-				<div>
-					<div
-						class="font-semibold"
-						style="color: var(--text-secondary); font-family: var(--font-heading);"
-					>
-						Vocation
-					</div>
-					<div class="flex items-center gap-3">
-						{#if editing}
-							<input
-								type="text"
-								bind:value={draft.vocation.name}
-								class="rounded border bg-transparent px-2 py-1 outline-none"
-								style="border-color: var(--border-color); color: var(--text-primary);"
-							/>
-							{#if draft.archetype === 'deft'}
-								<span class="text-xs italic" style="color: var(--text-muted);"
-									>Applies to any attribute</span
-								>
-							{:else}
-								<div class="flex gap-1">
-									{#each ATTRIBUTE_NAMES as attr}
-										<button
-											onclick={() => toggleTraitAttribute('vocation', attr)}
-											class="rounded px-2 py-1 text-xs uppercase transition"
-											style={draft.vocation.assignedAttributes.includes(attr)
-												? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
-												: draft.vocation.assignedAttributes.length >=
-													  TRAIT_ATTRIBUTE_LIMITS.vocation
-													? 'background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;'
-													: 'background: var(--bg-elevated); color: var(--text-secondary);'}
-										>
-											{attributeLabels[attr]}
-										</button>
-									{/each}
-								</div>
-							{/if}
-						{:else}
-							<span>{displayChar.vocation.name}</span>
-							{#if displayChar.archetype === 'deft'}
-								<span class="text-xs italic" style="color: var(--text-muted);"
-									>Applies to any attribute</span
-								>
-							{:else}
-								{#each displayChar.vocation.assignedAttributes as attr}
-									<span
-										class="rounded px-2 py-1 text-xs uppercase"
-										style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-									>
-										{attributeLabels[attr]}
-									</span>
-								{/each}
-							{/if}
-						{/if}
-					</div>
-				</div>
-
-				<!-- Affiliation -->
-				<div>
-					<div
-						class="font-semibold"
-						style="color: var(--text-secondary); font-family: var(--font-heading);"
-					>
-						Affiliation
-					</div>
-					<div class="flex items-center gap-3">
-						{#if editing}
-							<input
-								type="text"
-								bind:value={draft.affiliations[0].name}
-								class="rounded border bg-transparent px-2 py-1 outline-none"
-								style="border-color: var(--border-color); color: var(--text-primary);"
-							/>
-							<div class="flex gap-1">
-								{#each ATTRIBUTE_NAMES as attr}
-									<button
-										onclick={() => toggleTraitAttribute('affiliation', attr)}
-										class="rounded px-2 py-1 text-xs uppercase transition"
-										style={draft.affiliations[0]?.assignedAttributes.includes(attr)
-											? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
-											: (draft.affiliations[0]?.assignedAttributes.length ?? 0) >=
-												  TRAIT_ATTRIBUTE_LIMITS.affiliation
-												? 'background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;'
-												: 'background: var(--bg-elevated); color: var(--text-secondary);'}
-									>
-										{attributeLabels[attr]}
-									</button>
-								{/each}
-							</div>
-						{:else}
-							<span>{displayChar.affiliations[0]?.name}</span>
-							{#each displayChar.affiliations[0]?.assignedAttributes ?? [] as attr}
-								<span
-									class="rounded px-2 py-1 text-xs uppercase"
-									style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-								>
-									{attributeLabels[attr]}
-								</span>
-							{/each}
-						{/if}
-					</div>
-				</div>
+				<TraitRow
+					label="Ancestry"
+					trait={displayChar.ancestry}
+					{editing}
+					maxAttributes={editing ? getAncestryAttributeLimit(draft.ancestry.name) : 2}
+					onnamechange={(name) => { if (draft) draft.ancestry.name = name; }}
+					ontoggleattribute={(attr) => toggleTraitAttribute('ancestry', attr)}
+				/>
+				<TraitRow
+					label="Vocation"
+					trait={displayChar.vocation}
+					{editing}
+					maxAttributes={TRAIT_ATTRIBUTE_LIMITS.vocation}
+					noAttributeText={displayChar.archetype === 'deft' ? 'Applies to any attribute' : ''}
+					onnamechange={(name) => { if (draft) draft.vocation.name = name; }}
+					ontoggleattribute={(attr) => toggleTraitAttribute('vocation', attr)}
+				/>
+				<TraitRow
+					label="Affiliation"
+					trait={displayChar.affiliations[0] ?? { name: '', assignedAttributes: [] }}
+					{editing}
+					maxAttributes={TRAIT_ATTRIBUTE_LIMITS.affiliation}
+					onnamechange={(name) => { if (draft) draft.affiliations[0].name = name; }}
+					ontoggleattribute={(attr) => toggleTraitAttribute('affiliation', attr)}
+				/>
 			</div>
 
 			<!-- Archetype Feature -->
 			{#if feature}
-				<div
-					class="mb-8 rounded-lg p-5"
-					style="background: var(--bg-surface); border: 1px solid var(--border-color);"
-				>
-					<h3
-						class="mb-2 text-lg font-semibold"
-						style="color: var(--color-gold); font-family: var(--font-heading);"
-					>
-						{feature.name}
-					</h3>
-					<div class="prose prose-sm max-w-none">
-						{@html marked(feature.description)}
-					</div>
+				<div class="mb-8">
+					<ArchetypeFeatureCard name={feature.name} description={feature.description} />
 				</div>
 			{/if}
 
@@ -1190,62 +617,24 @@
 
 				<div class="space-y-4">
 					{#each displayChar.moves as slot, slotIndex}
-						<div
-							class="rounded-lg p-4"
-							style="background: var(--bg-elevated); border: 1px solid var(--border-color);"
-						>
-							<div class="mb-2 text-sm tracking-wide uppercase" style="color: var(--text-muted);">
-								{slot.type}
-							</div>
-
-							{#each slot.moves as move, moveIndex}
-								<div
-									class="mb-2 flex items-center gap-2 rounded px-3 py-2"
-									style={move.active === true
-										? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
-										: move.active === false
-											? `background: var(--bg-surface); color: var(--text-muted);`
-											: `background: var(--bg-surface); color: var(--text-primary);`}
-								>
-									{#if editing}
-										<input
-											type="text"
-											bind:value={draft.moves[slotIndex].moves[moveIndex].name}
-											class="flex-1 rounded border bg-transparent px-2 py-1 text-sm outline-none"
-											style="border-color: var(--border-color); color: var(--text-primary);"
-										/>
-										{#if move.active !== undefined}
-											<button
-												onclick={() => {
-													if (!draft) return;
-													const activating = !draft.moves[slotIndex].moves[moveIndex].active;
-													if (activating) {
-														// Deactivate all other moves in this slot
-														for (const m of draft.moves[slotIndex].moves) {
-															m.active = false;
-														}
-													}
-													draft.moves[slotIndex].moves[moveIndex].active = activating;
-												}}
-												class="rounded px-2 py-1 text-xs uppercase transition"
-												style={draft.moves[slotIndex].moves[moveIndex].active
-													? 'background: var(--color-gold); color: var(--bg-base);'
-													: 'background: var(--bg-elevated); color: var(--text-secondary);'}
-											>
-												{draft.moves[slotIndex].moves[moveIndex].active ? 'Active' : 'Inactive'}
-											</button>
-										{/if}
-									{:else}
-										<span class="flex-1">{move.name}</span>
-										{#if move.active !== undefined}
-											<span class="text-xs tracking-wide uppercase">
-												{move.active ? 'Active' : 'Inactive'}
-											</span>
-										{/if}
-									{/if}
-								</div>
-							{/each}
-						</div>
+						<MoveSlotCard
+							{slot}
+							{editing}
+							onmovechange={(moveIndex, name) => {
+								if (!draft) return;
+								draft.moves[slotIndex].moves[moveIndex].name = name;
+							}}
+							ontoggleactive={(moveIndex) => {
+								if (!draft) return;
+								const activating = !draft.moves[slotIndex].moves[moveIndex].active;
+								if (activating) {
+									for (const m of draft.moves[slotIndex].moves) {
+										m.active = false;
+									}
+								}
+								draft.moves[slotIndex].moves[moveIndex].active = activating;
+							}}
+						/>
 					{/each}
 				</div>
 			</div>
@@ -1332,254 +721,44 @@
 		</div>
 	</div>
 	<!-- Level Up Modal -->
-	{#if levelUpOpen && levelUpResult && character}
-		<div
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-			onclick={(e) => {
-				if (e.target === e.currentTarget) cancelLevelUp();
-			}}
-			role="dialog"
-			aria-modal="true"
-			aria-label="Level Up"
-		>
-			<div
-				class="mx-4 w-full max-w-lg rounded-lg p-6 shadow-2xl"
-				style="background: var(--bg-base); border: 1px solid var(--color-gold-dark);"
-			>
-				<h2
-					class="mb-1 text-2xl font-bold"
-					style="color: var(--color-gold); font-family: var(--font-heading);"
-				>
-					Level Up to {levelUpResult.character.level}
-				</h2>
-				<p class="mb-4 text-sm" style="color: var(--text-secondary);">
-					Gains: {levelUpSummary(levelUpResult.character.level).join(', ')}
-				</p>
-
-				{#if levelUpResult.grantsAttribute}
-					<p class="mb-4 text-sm" style="color: var(--text-primary);">
-						Choose an attribute to increase:
-					</p>
-					<div class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-						{#each ATTRIBUTE_NAMES as attr}
-							{@const canIncrease = canIncreaseAttribute(
-								character,
-								attr,
-								levelUpResult.character.level
-							)}
-							<button
-								onclick={() => {
-									if (canIncrease) selectedAttribute = attr;
-								}}
-								disabled={!canIncrease}
-								class="rounded p-3 text-center transition"
-								style={selectedAttribute === attr
-									? `border: 2px solid var(--color-gold); background: rgba(184,159,93,0.15); box-shadow: 0 0 8px rgba(184,159,93,0.3);`
-									: canIncrease
-										? `border: 1px solid var(--color-gold-dark); background: var(--bg-surface);`
-										: `border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed;`}
-							>
-								<div
-									class="text-xs tracking-wide uppercase"
-									style="font-family: var(--font-heading);"
-								>
-									{attributeLabels[attr]}
-								</div>
-								<div class="text-2xl font-bold" style="color: var(--color-gold);">
-									{character.attributes[attr]}
-								</div>
-								{#if canIncrease}
-									<div class="text-xs" style="color: var(--color-gold-light);">
-										→ {character.attributes[attr] + 1}
-									</div>
-								{:else}
-									<div class="text-xs" style="color: var(--text-muted);">max</div>
-								{/if}
-							</button>
-						{/each}
-					</div>
-				{/if}
-
-				<div class="flex justify-end gap-3">
-					<button
-						onclick={cancelLevelUp}
-						class="rounded px-4 py-2 text-sm transition"
-						style="background: var(--bg-elevated); color: var(--text-secondary);"
-					>
-						Cancel
-					</button>
-					<button
-						onclick={randomLevelUp}
-						class="rounded border px-4 py-2 text-sm font-semibold transition"
-						style="border-color: var(--color-gold-dark); background: var(--bg-surface); color: var(--color-gold);"
-					>
-						🎲 Random
-					</button>
-					<button
-						onclick={confirmLevelUp}
-						disabled={levelUpResult.grantsAttribute && !selectedAttribute}
-						class="rounded px-4 py-2 text-sm font-semibold transition"
-						style={levelUpResult.grantsAttribute && !selectedAttribute
-							? `background: var(--bg-elevated); color: var(--text-muted); cursor: not-allowed;`
-							: `background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);`}
-					>
-						Confirm Level Up
-					</button>
-				</div>
-			</div>
-		</div>
-	{/if}
+	<LevelUpModal
+		open={levelUpOpen}
+		{character}
+		{levelUpResult}
+		onconfirm={(attr) => {
+			if (!levelUpResult) return;
+			if (levelUpResult.grantsAttribute) {
+				if (!attr) return;
+				const withAttr = applyAttributeIncrease(levelUpResult.character, attr);
+				characterStore.updateCharacter(withAttr);
+			} else {
+				characterStore.updateCharacter(levelUpResult.character);
+			}
+			levelUpOpen = false;
+			levelUpResult = null;
+		}}
+		onrandom={randomLevelUp}
+		oncancel={cancelLevelUp}
+	/>
 	<!-- Portrait Upload Modal -->
-	{#if portraitModalOpen}
-		<div
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-			onclick={(e) => {
-				if (e.target === e.currentTarget) cancelPortraitModal();
-			}}
-			role="dialog"
-			aria-modal="true"
-			aria-label="Upload Portrait"
-		>
-			<div
-				class="mx-4 w-full max-w-md rounded-lg p-6 shadow-2xl"
-				style="background: var(--bg-base); border: 1px solid var(--color-gold-dark);"
-			>
-				<h2
-					class="mb-4 text-2xl font-bold"
-					style="color: var(--color-gold); font-family: var(--font-heading);"
-				>
-					Portrait
-				</h2>
-
-				{#if !portraitImg}
-					<label
-						class="flex h-48 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed transition"
-						style="border-color: var(--border-color);"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="mb-2 h-10 w-10"
-							style="color: var(--text-muted);"
-							viewBox="0 0 20 20"
-							fill="currentColor"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-						<span class="text-sm" style="color: var(--text-secondary);"
-							>Click to select an image</span
-						>
-						<input type="file" accept="image/*" class="hidden" onchange={handlePortraitFile} />
-					</label>
-				{:else}
-					<div class="flex flex-col items-center gap-3">
-						<p class="text-xs" style="color: var(--text-muted);">
-							Drag to reposition. Scroll to zoom.
-						</p>
-						<div
-							class="overflow-hidden rounded-lg"
-							style="width: {PORTRAIT_SIZE}px; height: {PORTRAIT_SIZE}px; border: 1px solid var(--border-color);"
-						>
-							<canvas
-								bind:this={cropCanvas}
-								width={PORTRAIT_SIZE}
-								height={PORTRAIT_SIZE}
-								class="cursor-grab active:cursor-grabbing"
-								onwheel={onCropWheel}
-								onpointerdown={onCropPointerDown}
-								onpointermove={onCropPointerMove}
-								onpointerup={onCropPointerUp}
-								onpointercancel={onCropPointerUp}
-							></canvas>
-						</div>
-						<label class="cursor-pointer text-xs underline" style="color: var(--color-gold);">
-							Choose different image
-							<input type="file" accept="image/*" class="hidden" onchange={handlePortraitFile} />
-						</label>
-					</div>
-				{/if}
-
-				<div class="mt-4 flex justify-end gap-3">
-					{#if displayChar.portrait}
-						<button
-							onclick={removePortrait}
-							class="mr-auto rounded bg-red-900/30 px-4 py-2 text-sm text-red-400 transition hover:bg-red-900/50"
-						>
-							Remove
-						</button>
-					{/if}
-					<button
-						onclick={cancelPortraitModal}
-						class="rounded px-4 py-2 text-sm transition"
-						style="background: var(--bg-elevated); color: var(--text-secondary);"
-					>
-						Cancel
-					</button>
-					<button
-						onclick={savePortrait}
-						disabled={!portraitImg}
-						class="rounded px-4 py-2 text-sm font-semibold transition"
-						style={portraitImg
-							? 'background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);'
-							: 'background: var(--bg-elevated); color: var(--text-muted); cursor: not-allowed;'}
-					>
-						Save Portrait
-					</button>
-				</div>
-			</div>
-		</div>
-	{/if}
+	<PortraitUploadModal
+		open={portraitModalOpen}
+		hasExistingPortrait={!!displayChar.portrait}
+		onsave={savePortrait}
+		onremove={removePortrait}
+		oncancel={cancelPortraitModal}
+	/>
 	<!-- Notes Modal -->
-	{#if notesOpen && character}
-		<div
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-			onclick={(e) => {
-				if (e.target === e.currentTarget) cancelNotes();
-			}}
-			role="dialog"
-			aria-modal="true"
-			aria-label="Edit Notes"
-		>
-			<div
-				class="mx-4 flex w-full max-w-lg flex-col rounded-lg p-6 shadow-2xl"
-				style="background: var(--bg-base); border: 1px solid var(--color-gold-dark);"
-			>
-				<h2
-					class="mb-4 text-2xl font-bold"
-					style="color: var(--color-gold); font-family: var(--font-heading);"
-				>
-					Notes
-				</h2>
-				<div class="mb-4">
-					<TiptapEditor
-						content={notesDraft}
-						onupdate={(md) => {
-							notesDraft = md;
-						}}
-					/>
-				</div>
-				<div class="flex justify-end gap-3">
-					<button
-						onclick={cancelNotes}
-						class="rounded px-4 py-2 text-sm transition"
-						style="background: var(--bg-elevated); color: var(--text-secondary);"
-					>
-						Cancel
-					</button>
-					<button
-						onclick={saveNotes}
-						class="rounded px-4 py-2 text-sm font-semibold transition"
-						style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-					>
-						Save Notes
-					</button>
-				</div>
-			</div>
-		</div>
-	{/if}
+	<NotesModal
+		open={notesOpen}
+		content={character.notes ?? ''}
+		onsave={(md) => {
+			if (!character) return;
+			characterStore.updateCharacter({ ...character, notes: md });
+			notesOpen = false;
+		}}
+		oncancel={cancelNotes}
+	/>
 {:else}
 	<div class="flex min-h-screen items-center justify-center" style="color: var(--text-secondary);">
 		<p style="color: var(--text-muted);">Loading...</p>

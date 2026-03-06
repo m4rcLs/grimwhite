@@ -1,10 +1,17 @@
 <script lang="ts">
-	import { marked } from 'marked';
 	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { generateCharacter } from '$lib/generator/generateCharacter';
 	import { characterStore } from '$lib/stores/characterStore';
 	import { goto } from '$app/navigation';
+	import WaxSealAttribute from '$lib/components/WaxSealAttribute.svelte';
+	import StatBadge from '$lib/components/StatBadge.svelte';
+	import StatusRow from '$lib/components/StatusRow.svelte';
+	import AttributeBadge from '$lib/components/AttributeBadge.svelte';
+	import CharacterPortrait from '$lib/components/CharacterPortrait.svelte';
+	import MoveSlotCard from '$lib/components/MoveSlotCard.svelte';
+	import ArchetypeFeatureCard from '$lib/components/ArchetypeFeatureCard.svelte';
+	import TraitRow from '$lib/components/TraitRow.svelte';
 
 	let character: Character | null = $state(null);
 
@@ -30,13 +37,6 @@
 		if (!vocationAttr) return char.level;
 		return char.level + char.attributes[vocationAttr];
 	}
-
-	const attributeLabels: Record<AttributeName, string> = {
-		brawns: 'Brawns',
-		agility: 'Agility',
-		wits: 'Wits',
-		presence: 'Presence'
-	};
 </script>
 
 <div class="min-h-screen p-8" style="color: var(--text-primary);">
@@ -79,23 +79,7 @@
 
 			<!-- Header with Portrait -->
 			<div class="mb-8 flex items-start gap-5">
-				<!-- Portrait placeholder -->
-				<div
-					class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border"
-					style="border-color: var(--border-color); background-color: var(--bg-surface);"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-10 w-10"
-						style="color: var(--text-muted);"
-						viewBox="0 0 24 24"
-						fill="currentColor"
-					>
-						<path
-							d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-						/>
-					</svg>
-				</div>
+				<CharacterPortrait name={character.name} />
 
 				<!-- Name / Level / Summary -->
 				<div class="min-w-0 flex-1">
@@ -113,182 +97,52 @@
 			<div class="mb-8">
 				<div class="grid grid-cols-2 gap-x-8 gap-y-0 md:grid-cols-[1fr_1fr_auto_1fr_1fr]">
 					{#each ['brawns', 'agility'] as attr}
-						<div
-							class="wax-seal rounded-lg p-4 text-center"
-							style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
-						>
-							<div
-								class="text-xs font-semibold tracking-widest uppercase"
-								style="font-family: var(--font-heading); color: var(--text-secondary);"
-							>
-								{attributeLabels[attr as AttributeName]}
-							</div>
-							<div
-								class="text-3xl font-bold"
-								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-							>
-								{character.attributes[attr as AttributeName]}
-							</div>
-						</div>
+						<WaxSealAttribute
+							attribute={attr as AttributeName}
+							value={character.attributes[attr as AttributeName]}
+						/>
 					{/each}
 					<div class="hidden md:block"></div>
 					{#each ['wits', 'presence'] as attr}
-						<div
-							class="wax-seal rounded-lg p-4 text-center"
-							style="background: radial-gradient(ellipse at 30% 30%, var(--bg-elevated), var(--bg-surface)); border: 1px solid var(--border-color); box-shadow: inset 0 1px 0 rgba(184, 159, 93, 0.1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);"
-						>
-							<div
-								class="text-xs font-semibold tracking-widest uppercase"
-								style="font-family: var(--font-heading); color: var(--text-secondary);"
-							>
-								{attributeLabels[attr as AttributeName]}
-							</div>
-							<div
-								class="text-3xl font-bold"
-								style="color: var(--color-gold); text-shadow: 0 0 12px rgba(184, 159, 93, 0.3);"
-							>
-								{character.attributes[attr as AttributeName]}
-							</div>
-						</div>
+						<WaxSealAttribute
+							attribute={attr as AttributeName}
+							value={character.attributes[attr as AttributeName]}
+						/>
 					{/each}
 
 					<!-- Bloodied row -->
-					<div class="col-span-2 flex flex-col items-center py-2">
-						<div class="flex w-full items-center gap-2 px-4">
-							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
-							<span class="text-xs font-semibold tracking-wide text-red-400/50 uppercase"
-								>Bloodied</span
-							>
-							<div class="h-0 flex-1 border-t border-dotted border-red-700/50"></div>
-						</div>
-					</div>
+					<StatusRow label="Bloodied" color="red" />
 					<div class="hidden md:block"></div>
 					<!-- Rattled row -->
-					<div class="col-span-2 flex flex-col items-center py-2">
-						<div class="flex w-full items-center gap-2 px-4">
-							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
-							<span class="text-xs font-semibold tracking-wide text-violet-400/50 uppercase"
-								>Rattled</span
-							>
-							<div class="h-0 flex-1 border-t border-dotted border-violet-700/50"></div>
-						</div>
-					</div>
+					<StatusRow label="Rattled" color="violet" />
 				</div>
 			</div>
 
 			<!-- Grit, Sanity & Essence -->
 			<div class="mb-8 flex flex-wrap gap-6">
-				<div
-					class="rounded border px-5 py-3"
-					style="border-color: var(--border-color); background-color: var(--bg-surface);"
-				>
-					<span class="text-sm" style="color: var(--text-secondary);">Grit</span>
-					<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
-						>{character.grit}</span
-					>
-				</div>
-				<div
-					class="rounded border px-5 py-3"
-					style="border-color: var(--border-color); background-color: var(--bg-surface);"
-				>
-					<span class="text-sm" style="color: var(--text-secondary);">Sanity</span>
-					<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);"
-						>{character.sanity}</span
-					>
-				</div>
+				<StatBadge label="Grit" value={character.grit} />
+				<StatBadge label="Sanity" value={character.sanity} />
 				{#if essence !== null}
-					<div
-						class="rounded border px-5 py-3"
-						style="border-color: var(--border-color); background-color: var(--bg-surface);"
-					>
-						<span class="text-sm" style="color: var(--text-secondary);">Essence Pool</span>
-						<span class="ml-2 text-xl font-bold" style="color: var(--color-gold);">{essence}</span>
-					</div>
+					<StatBadge label="Essence Pool" value={essence} />
 				{/if}
 			</div>
 
 			<!-- Traits -->
 			<div class="mb-8 space-y-4">
-				<div>
-					<div
-						class="font-semibold"
-						style="font-family: var(--font-heading); color: var(--text-secondary);"
-					>
-						Ancestry
-					</div>
-					<div class="flex items-center gap-3">
-						<span>{character.ancestry.name}</span>
-						{#each character.ancestry.assignedAttributes as attr}
-							<span
-								class="rounded px-2 py-1 text-xs uppercase"
-								style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-							>
-								{attributeLabels[attr]}
-							</span>
-						{/each}
-					</div>
-				</div>
-
-				<div>
-					<div
-						class="font-semibold"
-						style="font-family: var(--font-heading); color: var(--text-secondary);"
-					>
-						Vocation
-					</div>
-					<div class="flex items-center gap-3">
-						<span>{character.vocation.name}</span>
-						{#if character.archetype === 'deft'}
-							<span class="text-xs italic" style="color: var(--text-muted);"
-								>Applies to any attribute</span
-							>
-						{:else}
-							{#each character.vocation.assignedAttributes as attr}
-								<span
-									class="rounded px-2 py-1 text-xs uppercase"
-									style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-								>
-									{attributeLabels[attr]}
-								</span>
-							{/each}
-						{/if}
-					</div>
-				</div>
-
-				<div>
-					<div
-						class="font-semibold"
-						style="font-family: var(--font-heading); color: var(--text-secondary);"
-					>
-						Affiliation
-					</div>
-					<div class="flex items-center gap-3">
-						<span>{character.affiliations[0]?.name}</span>
-						{#each character.affiliations[0]?.assignedAttributes ?? [] as attr}
-							<span
-								class="rounded px-2 py-1 text-xs uppercase"
-								style="background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);"
-							>
-								{attributeLabels[attr]}
-							</span>
-						{/each}
-					</div>
-				</div>
+				<TraitRow label="Ancestry" trait={character.ancestry} />
+				<TraitRow
+					label="Vocation"
+					trait={character.vocation}
+					noAttributeText={character.archetype === 'deft' ? 'Applies to any attribute' : ''}
+				/>
+				{#if character.affiliations[0]}
+					<TraitRow label="Affiliation" trait={character.affiliations[0]} />
+				{/if}
 			</div>
 
 			<!-- Archetype Feature -->
 			{#if feature}
-				<div
-					class="mb-8 rounded-lg border p-5"
-					style="border-color: var(--border-color); background-color: var(--bg-surface);"
-				>
-					<h3 class="mb-2 text-lg font-semibold" style="color: var(--color-gold);">
-						{feature.name}
-					</h3>
-					<div class="prose prose-sm max-w-none">
-						{@html marked(feature.description)}
-					</div>
-				</div>
+				<ArchetypeFeatureCard name={feature.name} description={feature.description} />
 			{/if}
 
 			<!-- Moves -->
@@ -299,35 +153,7 @@
 
 				<div class="space-y-4">
 					{#each character.moves as slot}
-						<div
-							class="rounded-lg border p-4"
-							style="border-color: var(--border-color); background: var(--bg-elevated);"
-						>
-							<div
-								class="mb-2 text-sm tracking-wide uppercase"
-								style="font-family: var(--font-heading); color: var(--text-muted);"
-							>
-								{slot.type}
-							</div>
-
-							{#each slot.moves as move}
-								<div
-									class="mb-2 flex items-center gap-2 rounded px-3 py-2"
-									style={move.active === true
-										? `background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold)); color: var(--bg-base);`
-										: move.active === false
-											? `background-color: var(--bg-surface); color: var(--text-muted);`
-											: `background-color: var(--bg-surface);`}
-								>
-									<span class="flex-1">{move.name}</span>
-									{#if move.active !== undefined}
-										<span class="text-xs tracking-wide uppercase">
-											{move.active ? 'Active' : 'Inactive'}
-										</span>
-									{/if}
-								</div>
-							{/each}
-						</div>
+						<MoveSlotCard {slot} />
 					{/each}
 				</div>
 			</div>
