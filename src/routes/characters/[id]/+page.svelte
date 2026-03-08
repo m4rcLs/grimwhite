@@ -1,10 +1,6 @@
 <script lang="ts">
 	import { marked } from 'marked';
-	import {
-		type Character,
-		type AttributeName,
-		MoveNames
-	} from '$lib/models/character';
+	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { ANCESTRIES } from '$lib/content/ancestries';
 	import { EXPERIENCES } from '$lib/content/experiences';
@@ -444,12 +440,7 @@
 				</div>
 
 				<!-- XP Tracker -->
-				<XpTracker
-					{character}
-					{editing}
-					onadjustxp={adjustXp}
-					onfillxp={fillXpToNextLevel}
-				/>
+				<XpTracker {character} {editing} onadjustxp={adjustXp} onfillxp={fillXpToNextLevel} />
 			</div>
 
 			<!-- Attributes -->
@@ -461,7 +452,9 @@
 						{editing}
 						level={displayChar.level}
 						markedAttributes={displayChar.markedAttributes ?? []}
-						onvaluechange={(v) => { if (draft) draft.attributes.brawns = v; }}
+						onvaluechange={(v) => {
+							if (draft) draft.attributes.brawns = v;
+						}}
 						ontogglemarked={toggleMarkedAttribute}
 					/>
 					<WaxSealAttribute
@@ -470,7 +463,9 @@
 						{editing}
 						level={displayChar.level}
 						markedAttributes={displayChar.markedAttributes ?? []}
-						onvaluechange={(v) => { if (draft) draft.attributes.agility = v; }}
+						onvaluechange={(v) => {
+							if (draft) draft.attributes.agility = v;
+						}}
 						ontogglemarked={toggleMarkedAttribute}
 					/>
 					<!-- Spacer (desktop only) -->
@@ -481,7 +476,9 @@
 						{editing}
 						level={displayChar.level}
 						markedAttributes={displayChar.markedAttributes ?? []}
-						onvaluechange={(v) => { if (draft) draft.attributes.wits = v; }}
+						onvaluechange={(v) => {
+							if (draft) draft.attributes.wits = v;
+						}}
 						ontogglemarked={toggleMarkedAttribute}
 					/>
 					<WaxSealAttribute
@@ -490,7 +487,9 @@
 						{editing}
 						level={displayChar.level}
 						markedAttributes={displayChar.markedAttributes ?? []}
-						onvaluechange={(v) => { if (draft) draft.attributes.presence = v; }}
+						onvaluechange={(v) => {
+							if (draft) draft.attributes.presence = v;
+						}}
 						ontogglemarked={toggleMarkedAttribute}
 					/>
 
@@ -546,26 +545,32 @@
 				</div>
 			</div>
 
-			<!-- Grit, Sanity & Essence -->
+			<!-- Grit, Resolve & Essence -->
 			<div class="mb-8 flex flex-wrap gap-6">
 				<StatBadge
 					label="Grit"
 					value={displayChar.grit}
 					{editing}
-					onvaluechange={(v) => { if (draft) draft.grit = v; }}
+					onvaluechange={(v) => {
+						if (draft) draft.grit = v;
+					}}
 				/>
 				<StatBadge
-					label="Sanity"
-					value={displayChar.sanity}
+					label="Resolve"
+					value={displayChar.resolve}
 					{editing}
-					onvaluechange={(v) => { if (draft) draft.sanity = v; }}
+					onvaluechange={(v) => {
+						if (draft) draft.resolve = v;
+					}}
 				/>
 				{#if maxEssence && maxEssence > 0}
 					<StatBadge
 						label="Essence"
 						value={editing && maxEssence > 0 ? currentEssence : `${currentEssence}/${maxEssence}`}
 						{editing}
-						onvaluechange={(v) => { currentEssence = v; }}
+						onvaluechange={(v) => {
+							currentEssence = v;
+						}}
 					/>
 				{/if}
 			</div>
@@ -577,7 +582,9 @@
 					trait={displayChar.ancestry}
 					{editing}
 					maxAttributes={editing ? getAncestryAttributeLimit(draft.ancestry.name) : 2}
-					onnamechange={(name) => { if (draft) draft.ancestry.name = name; }}
+					onnamechange={(name) => {
+						if (draft) draft.ancestry.name = name;
+					}}
 					ontoggleattribute={(attr) => toggleTraitAttribute('ancestry', attr)}
 				/>
 				<TraitRow
@@ -586,7 +593,9 @@
 					{editing}
 					maxAttributes={TRAIT_ATTRIBUTE_LIMITS.vocation}
 					noAttributeText={displayChar.archetype === 'deft' ? 'Applies to any attribute' : ''}
-					onnamechange={(name) => { if (draft) draft.vocation.name = name; }}
+					onnamechange={(name) => {
+						if (draft) draft.vocation.name = name;
+					}}
 					ontoggleattribute={(attr) => toggleTraitAttribute('vocation', attr)}
 				/>
 				<TraitRow
@@ -594,7 +603,9 @@
 					trait={displayChar.affiliations[0] ?? { name: '', assignedAttributes: [] }}
 					{editing}
 					maxAttributes={TRAIT_ATTRIBUTE_LIMITS.affiliation}
-					onnamechange={(name) => { if (draft) draft.affiliations[0].name = name; }}
+					onnamechange={(name) => {
+						if (draft) draft.affiliations[0].name = name;
+					}}
 					ontoggleattribute={(attr) => toggleTraitAttribute('affiliation', attr)}
 				/>
 			</div>

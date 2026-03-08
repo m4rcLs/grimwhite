@@ -156,7 +156,7 @@ export function generateCharacter(): Character {
 		archetype,
 		attributes,
 		grit: 1,
-		sanity: 1,
+		resolve: 1,
 		ancestry: ancestryAsTrait(ancestry),
 		vocation: {
 			name: vocationName,

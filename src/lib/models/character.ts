@@ -38,7 +38,7 @@ export interface Character {
 	attributes: Record<AttributeName, number>;
 
 	grit: number;
-	sanity: number;
+	resolve: number;
 	bloodied: boolean;
 	rattled: boolean;
 	markedAttributes: AttributeName[];
@@ -50,7 +50,7 @@ export interface Character {
 
 	experiences: Experience[];
 	moves: MoveSlot[];
-	essence?: {max: number, current: number}
+	essence?: { max: number; current: number };
 
 	xp: number;
 	notes: string;

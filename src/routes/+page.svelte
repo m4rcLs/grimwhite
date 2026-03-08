@@ -118,10 +118,10 @@
 				</div>
 			</div>
 
-			<!-- Grit, Sanity & Essence -->
+			<!-- Grit, Resolve & Essence -->
 			<div class="mb-8 flex flex-wrap gap-6">
 				<StatBadge label="Grit" value={character.grit} />
-				<StatBadge label="Sanity" value={character.sanity} />
+				<StatBadge label="Resolve" value={character.resolve} />
 				{#if essence !== null}
 					<StatBadge label="Essence Pool" value={essence} />
 				{/if}

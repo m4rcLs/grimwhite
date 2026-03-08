@@ -1,10 +1,21 @@
 export const AFFILIATIONS = [
-	'Thieves Guild',
-	'Mountain Top',
 	'Clan of the Thundering Herd',
 	'Order of the Black Sepulcher',
 	'Crimson Banner Company',
 	'Ashen Covenant',
 	'Gilded Court',
-	'Brotherhood of Salt'
+	'Brotherhood of Salt',
+	'The Sularian Church',
+	'Oram Hai',
+	'Children of the Sun',
+	'Sargrad',
+	'Innis',
+	'Ursalis',
+	'Tarasrael',
+	'Harunkaray',
+	'The Cranium Cabal',
+	'Tiste Andii',
+	'Hamoratt',
+	'Orinfell',
+	'Lawbrand'
 ];

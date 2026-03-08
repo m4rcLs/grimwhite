@@ -10,9 +10,7 @@ import { rollOn } from './tables';
 import { randomFrom } from '$lib/generator/utils';
 import { KNAVE_TABLES } from '$lib/content/randomTables/tableMap';
 
-
-
-const TABLES = KNAVE_TABLES
+const TABLES = KNAVE_TABLES;
 
 type Formula = () => string;
 

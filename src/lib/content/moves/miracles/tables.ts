@@ -8,7 +8,7 @@
  * This allows entries in one table to reference another table for variety.
  */
 
-export type TableEntry = string | { table?: string, generator?: () => string };
+export type TableEntry = string | { table?: string; generator?: () => string };
 export type TableMap = Record<string, TableEntry[]>;
 
 import { randomFrom } from '$lib/generator/utils';
@@ -18,8 +18,8 @@ export function resolveEntry(entry: TableEntry, tables: TableMap, depth = 0): st
 	if (depth > 5) return typeof entry === 'string' ? entry : '???';
 	if (typeof entry === 'string') return entry;
 
-	if (entry.generator && typeof entry.generator === 'function') return entry.generator()
-	if (!entry.table) return '???'
+	if (entry.generator && typeof entry.generator === 'function') return entry.generator();
+	if (!entry.table) return '???';
 	const subTable = tables[entry.table];
 	if (!subTable) return '???';
 	return resolveEntry(randomFrom(subTable), tables, depth + 1);

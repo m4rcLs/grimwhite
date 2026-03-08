@@ -40,8 +40,8 @@ export const XP_THRESHOLDS: Record<number, number> = {
 
 // --- Derived stat formulas ---
 
-/** Grit & Sanity = 1 + floor((level - 1) / 2) */
-export function calculateGritSanity(level: number): number {
+/** Grit & Resolve = 1 + floor((level - 1) / 2) */
+export function calculateGritResolve(level: number): number {
 	return 1 + Math.floor((level - 1) / 2);
 }
 
@@ -119,7 +119,7 @@ export function createEmptyMoveSlot(archetype: Archetype): MoveSlot {
  * Level up a character by one level.
  *
  * - Increments level
- * - Recalculates grit & sanity
+ * - Recalculates grit & resolve
  * - Adds a new move slot if applicable
  * - Adds an empty experience slot if applicable
  * - If an attribute increase is granted, the caller must handle
@@ -136,10 +136,10 @@ export function levelUp(character: Character): LevelUpResult {
 	const updated: Character = JSON.parse(JSON.stringify(character));
 	updated.level = newLevel;
 
-	// Recalculate grit & sanity
-	const gs = calculateGritSanity(newLevel);
+	// Recalculate grit & resolve
+	const gs = calculateGritResolve(newLevel);
 	updated.grit = gs;
-	updated.sanity = gs;
+	updated.resolve = gs;
 
 	const grantsMoveSlot = levelGrantsNewMoveSlot(newLevel);
 	const grantsExperience = levelGrantsNewExperience(newLevel);
@@ -187,9 +187,9 @@ export function levelUpSummary(newLevel: number): string[] {
 	if (levelGrantsNewExperience(newLevel)) parts.push('+1 Experience');
 	if (newLevel === 5) parts.push('Gain Attribute Marks & 2 Spark');
 
-	const gs = calculateGritSanity(newLevel);
-	const prevGs = calculateGritSanity(newLevel - 1);
-	if (gs > prevGs) parts.push(`Grit & Sanity → ${gs}`);
+	const gs = calculateGritResolve(newLevel);
+	const prevGs = calculateGritResolve(newLevel - 1);
+	if (gs > prevGs) parts.push(`Grit & Resolve → ${gs}`);
 
 	return parts;
 }

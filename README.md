@@ -11,7 +11,7 @@ Grimwhite generates complete player characters for a grim, low-fantasy tabletop 
 - **Rich content tables** — 100+ vocations, 400+ experiences, multiple ancestries, affiliations and procedurally named moves.
 - **Preserve & manage characters** — save to `localStorage`, browse on `/characters`, edit in-place, delete with confirmation.
 - **XP tracking & level-up** — XP tracker with +/− buttons and fill-to-threshold; leveling gated behind XP thresholds.
-- **Leveling system** — attribute increases, new moves, experiences, and grit/sanity scaling up to level 10.
+- **Leveling system** — attribute increases, new moves, experiences, and grit/resolve scaling up to level 10.
 - **Rich-text notes** — Tiptap-powered editor per character for session notes.
 - **Dark medieval theme** — Cinzel, EB Garamond & Uncial Antiqua fonts, gold accents, wax-seal badges, parchment textures.
 - **Light/dark mode** — toggle with persistent preference.
@@ -29,15 +29,15 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build |
-| `npm run preview` | Preview production build |
-| `npm run check` | Type-check with `svelte-check` |
-| `npm run lint` | Lint & format check |
-| `npm run format` | Auto-format with Prettier |
-| `npm run test` | Run unit tests (Vitest) |
+| Command           | Description                    |
+| ----------------- | ------------------------------ |
+| `npm run dev`     | Start dev server               |
+| `npm run build`   | Production build               |
+| `npm run preview` | Preview production build       |
+| `npm run check`   | Type-check with `svelte-check` |
+| `npm run lint`    | Lint & format check            |
+| `npm run format`  | Auto-format with Prettier      |
+| `npm run test`    | Run unit tests (Vitest)        |
 
 ## Tech Stack
 

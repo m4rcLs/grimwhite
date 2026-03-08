@@ -17,7 +17,4 @@ export function ancestryAsTrait(ancestry: Ancestry): Trait {
 export const ANCESTRIES: Ancestry[] = [
 	{ name: 'Human', attributeCount: 0, isDefault: true },
 	{ name: 'Ashen-Blooded', attributeCount: 2 },
-	{ name: 'Graveborn', attributeCount: 2 },
-	{ name: 'Mirefolk', attributeCount: 2 },
-	{ name: 'Storm-Touched', attributeCount: 2 }
 ];

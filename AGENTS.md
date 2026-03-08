@@ -14,36 +14,36 @@ Inspirations: [scvmbirther](https://scvmbirther.makedatanotlore.dev/), [shadowda
 
 ### Core Features
 
-| # | Feature | Status | Notes |
-|---|---------|--------|-------|
-| 1 | Random character generation (level 1) | **DONE** | `generateCharacter()` in `src/lib/generator/generateCharacter.ts` |
-| 2 | Three archetypes: Strong, Deft, Wise | **DONE** | Random selection, archetype-specific moves |
-| 3 | 4 attributes (Brawns, Agility, Wits, Presence) starting at 1, +1 random | **DONE** | |
-| 4 | Ancestry (50% human default, non-human → 2 attribute assignments) | **DONE** | |
-| 5 | Vocation + 1 attribute assignment | **DONE** | |
-| 6 | 1 Affiliation + 1 attribute assignment | **DONE** | |
-| 7 | 2 Move slots at level 1 (archetype-specific) | **DONE** | Strong=Maneuver (prefix+weapon+suffix), Deft=Technique (non-combat utility), Wise=2 Miracles per slot (GrimWild/Knave2e generators) |
-| 8 | 2 Experiences from curated table | **DONE** | 400+ experiences available |
-| 9 | Grit & Sanity starting at 1 | **DONE** | |
-| 10 | Name generation | **DONE** | Prefix+suffix syllable combiner |
-| 11 | One-line character summary (NLP-powered) | **DONE** | Uses `compromise` for grammar |
-| 12 | Save character to localStorage | **DONE** | Store + import wired up |
-| 13 | Character list page (`/characters`) | **DONE** | Lists preserved characters with summary |
-| 14 | Character sheet page (`/characters/[id]`) | **DONE** | Read-only sheet with all data, archetype feature, Essence Pool |
-| 15 | Editable character sheet (edit name, traits, moves, experiences, attributes) | **DONE** | Edit mode toggle with inline editing for all fields |
-| 16 | Manual level-up (button, levels 1–10) | **DONE** | `levelUp()` in `src/lib/generator/leveling.ts`, UI on character sheet |
-| 17 | Attribute increase at L1, L3, L5, L7, L9, L10 (cap 3, L10 cap 4, total=10) | **DONE** | Picker UI with cap enforcement, `canIncreaseAttribute()` |
-| 18 | New move slot at L2, L4, L6, L8, L10 | **DONE** | Auto-added with empty prefix/suffix |
-| 19 | New experience at L4, L8, L10 | **DONE** | Auto-added with placeholder name |
-| 20 | Grit & Sanity increase at L3, L5, L7, L9 (formula: `1 + floor((level-1)/2)`) | **DONE** | Recalculated via `calculateGritSanity()` |
-| 21 | Wise Essence Pool display (derived: `level + vocation attribute value`) | **DONE** | Shown on character sheet for Wise characters |
-| 22 | Archetype features display (Consequences of Conflict, One of the Best) | **DONE** | Rendered on character sheet page |
-| 23 | Notes/items textarea | **DONE** | Editable textarea in edit mode on character sheet |
-| 24 | Portrait placeholder / image upload | **DONE** | Placeholder with silhouette icon, image display ready |
-| 25 | Dark medieval themed UI with custom fonts | **DONE** | Cinzel (headings), EB Garamond (body), Uncial Antiqua (title). CSS variable theming with gold accents, wax-seal badges, parchment textures |
-| 26 | Light/dark mode toggle | **DONE** | `themeStore` with localStorage persistence, class strategy on `<html>` |
-| 27 | JSON export/import of characters | **NOT DONE** | Nice-to-have per spec |
-| 28 | XP tracking with level-up thresholds | **DONE** | XP tracker on character sheet with +/− buttons, fill-to-threshold, `canLevelUp()` checks XP |
+| #   | Feature                                                                       | Status       | Notes                                                                                                                                      |
+| --- | ----------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Random character generation (level 1)                                         | **DONE**     | `generateCharacter()` in `src/lib/generator/generateCharacter.ts`                                                                          |
+| 2   | Three archetypes: Strong, Deft, Wise                                          | **DONE**     | Random selection, archetype-specific moves                                                                                                 |
+| 3   | 4 attributes (Brawns, Agility, Wits, Presence) starting at 1, +1 random       | **DONE**     |                                                                                                                                            |
+| 4   | Ancestry (50% human default, non-human → 2 attribute assignments)             | **DONE**     |                                                                                                                                            |
+| 5   | Vocation + 1 attribute assignment                                             | **DONE**     |                                                                                                                                            |
+| 6   | 1 Affiliation + 1 attribute assignment                                        | **DONE**     |                                                                                                                                            |
+| 7   | 2 Move slots at level 1 (archetype-specific)                                  | **DONE**     | Strong=Maneuver (prefix+weapon+suffix), Deft=Technique (non-combat utility), Wise=2 Miracles per slot (GrimWild/Knave2e generators)        |
+| 8   | 2 Experiences from curated table                                              | **DONE**     | 400+ experiences available                                                                                                                 |
+| 9   | Grit & Resolve starting at 1                                                  | **DONE**     |                                                                                                                                            |
+| 10  | Name generation                                                               | **DONE**     | Prefix+suffix syllable combiner                                                                                                            |
+| 11  | One-line character summary (NLP-powered)                                      | **DONE**     | Uses `compromise` for grammar                                                                                                              |
+| 12  | Save character to localStorage                                                | **DONE**     | Store + import wired up                                                                                                                    |
+| 13  | Character list page (`/characters`)                                           | **DONE**     | Lists preserved characters with summary                                                                                                    |
+| 14  | Character sheet page (`/characters/[id]`)                                     | **DONE**     | Read-only sheet with all data, archetype feature, Essence Pool                                                                             |
+| 15  | Editable character sheet (edit name, traits, moves, experiences, attributes)  | **DONE**     | Edit mode toggle with inline editing for all fields                                                                                        |
+| 16  | Manual level-up (button, levels 1–10)                                         | **DONE**     | `levelUp()` in `src/lib/generator/leveling.ts`, UI on character sheet                                                                      |
+| 17  | Attribute increase at L1, L3, L5, L7, L9, L10 (cap 3, L10 cap 4, total=10)    | **DONE**     | Picker UI with cap enforcement, `canIncreaseAttribute()`                                                                                   |
+| 18  | New move slot at L2, L4, L6, L8, L10                                          | **DONE**     | Auto-added with empty prefix/suffix                                                                                                        |
+| 19  | New experience at L4, L8, L10                                                 | **DONE**     | Auto-added with placeholder name                                                                                                           |
+| 20  | Grit & Resolve increase at L3, L5, L7, L9 (formula: `1 + floor((level-1)/2)`) | **DONE**     | Recalculated via `calculateGritResolve()`                                                                                                  |
+| 21  | Wise Essence Pool display (derived: `level + vocation attribute value`)       | **DONE**     | Shown on character sheet for Wise characters                                                                                               |
+| 22  | Archetype features display (Consequences of Conflict, One of the Best)        | **DONE**     | Rendered on character sheet page                                                                                                           |
+| 23  | Notes/items textarea                                                          | **DONE**     | Editable textarea in edit mode on character sheet                                                                                          |
+| 24  | Portrait placeholder / image upload                                           | **DONE**     | Placeholder with silhouette icon, image display ready                                                                                      |
+| 25  | Dark medieval themed UI with custom fonts                                     | **DONE**     | Cinzel (headings), EB Garamond (body), Uncial Antiqua (title). CSS variable theming with gold accents, wax-seal badges, parchment textures |
+| 26  | Light/dark mode toggle                                                        | **DONE**     | `themeStore` with localStorage persistence, class strategy on `<html>`                                                                     |
+| 27  | JSON export/import of characters                                              | **NOT DONE** | Nice-to-have per spec                                                                                                                      |
+| 28  | XP tracking with level-up thresholds                                          | **DONE**     | XP tracker on character sheet with +/− buttons, fill-to-threshold, `canLevelUp()` checks XP                                                |
 
 ### Known Bugs
 
@@ -91,6 +91,7 @@ None currently.
 ## Game System Rules Reference
 
 ### Attributes
+
 - 4 attributes: Brawns, Agility, Wits, Presence
 - All start at 1
 - Attribute value = number of d6 rolled for checks
@@ -100,26 +101,28 @@ None currently.
 - Level 10 total must equal 10
 
 ### Archetypes
+
 - **Strong**: Combat Maneuvers. Feature: "Consequences of Conflict" — after battle, choose one of: Special Interest (note an experience), Substance (harvest material), Supernatural (gain enemy ability if killed with last attack). Only one active at a time. Uses = level when gained.
 - **Deft**: Special Techniques. Feature: "One of the Best" — once per session per technique, auto-Perfect on an applicable roll.
 - **Wise**: Miracles (2 per slot, one active/one inactive). Essence Pool = Level + Vocation Attribute.
 
 ### Level Progression Table
 
-| Level | XP Required | Attribute Increase | New Move | New Experience | Grit/Sanity |
-|-------|-------------|--------------------|----------|----------------|-------------|
-| 1     | 0           | +1 (during gen)    | 2 slots  | 2 (during gen) | 1           |
-| 2     | 10          |                    | +1 slot  |                | 1           |
-| 3     | 25          | +1                 |          |                | 2           |
-| 4     | 50          |                    | +1 slot  | +1             | 2           |
-| 5     | 85          | +1                 |          |                | 3           |
-| 6     | 90          |                    | +1 slot  |                | 3           |
-| 7     | 105         | +1                 |          |                | 4           |
-| 8     | 115         |                    | +1 slot  | +1             | 4           |
-| 9     | 140         | +1                 |          |                | 5           |
-| 10    | 170         | +1 (cap 4 allowed) | +1 slot  | +1             | 5           |
+| Level | XP Required | Attribute Increase | New Move | New Experience | Grit/Resolve |
+| ----- | ----------- | ------------------ | -------- | -------------- | ------------ |
+| 1     | 0           | +1 (during gen)    | 2 slots  | 2 (during gen) | 1            |
+| 2     | 10          |                    | +1 slot  |                | 1            |
+| 3     | 25          | +1                 |          |                | 2            |
+| 4     | 50          |                    | +1 slot  | +1             | 2            |
+| 5     | 85          | +1                 |          |                | 3            |
+| 6     | 90          |                    | +1 slot  |                | 3            |
+| 7     | 105         | +1                 |          |                | 4            |
+| 8     | 115         |                    | +1 slot  | +1             | 4            |
+| 9     | 140         | +1                 |          |                | 5            |
+| 10    | 170         | +1 (cap 4 allowed) | +1 slot  | +1             | 5            |
 
 ### Content Tables
+
 - Ancestries: 5 (Human default 50%, 4 non-human with 2 attribute assignments)
 - Vocations: ~117
 - Affiliations: 8
@@ -183,29 +186,29 @@ src/
 
 ## Character Model (`src/lib/models/character.ts`)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | UUID v4 |
-| `name` | `string` | Procedurally generated fantasy name |
-| `level` | `number` | Always starts at 1 |
-| `archetype` | `'strong' \| 'deft' \| 'wise'` | Determines move type and class feature |
-| `attributes` | `Record<AttributeName, number>` | brawns, agility, wits, presence (base 1, one randomly +1) |
-| `grit` | `number` | Health-like stat (starts at 1) |
-| `sanity` | `number` | Mental health stat (starts at 1) |
-| `bloodied` | `boolean` | Tracked on character sheet |
-| `rattled` | `boolean` | Tracked on character sheet |
-| `markedAttributes` | `AttributeName[]` | Attributes marked during play |
-| `spark` | `[boolean, boolean]` | Two spark checkboxes |
-| `ancestry` | `Trait` | Race/species with attribute bonuses |
-| `vocation` | `Trait` | Class/job with one bonus attribute |
-| `affiliations` | `Trait[]` | Faction memberships with bonus attributes |
-| `experiences` | `Experience[]` | Randomly chosen backstory events |
-| `moves` | `MoveSlot[]` | Archetype-specific move slots |
-| `xp` | `number` | Experience points (starts at 0, threshold-gated leveling) |
-| `notes` | `string` | Free-text field (empty initially) |
-| `portrait` | `string?` | Base64 image data from upload |
-| `summary` | `string?` | NLP-generated one-line description |
-| `createdAt` | `number` | Timestamp |
+| Field              | Type                            | Description                                               |
+| ------------------ | ------------------------------- | --------------------------------------------------------- |
+| `id`               | `string`                        | UUID v4                                                   |
+| `name`             | `string`                        | Procedurally generated fantasy name                       |
+| `level`            | `number`                        | Always starts at 1                                        |
+| `archetype`        | `'strong' \| 'deft' \| 'wise'`  | Determines move type and class feature                    |
+| `attributes`       | `Record<AttributeName, number>` | brawns, agility, wits, presence (base 1, one randomly +1) |
+| `grit`             | `number`                        | Health-like stat (starts at 1)                            |
+| `resolve`          | `number`                        | Mental health stat (starts at 1)                          |
+| `bloodied`         | `boolean`                       | Tracked on character sheet                                |
+| `rattled`          | `boolean`                       | Tracked on character sheet                                |
+| `markedAttributes` | `AttributeName[]`               | Attributes marked during play                             |
+| `spark`            | `[boolean, boolean]`            | Two spark checkboxes                                      |
+| `ancestry`         | `Trait`                         | Race/species with attribute bonuses                       |
+| `vocation`         | `Trait`                         | Class/job with one bonus attribute                        |
+| `affiliations`     | `Trait[]`                       | Faction memberships with bonus attributes                 |
+| `experiences`      | `Experience[]`                  | Randomly chosen backstory events                          |
+| `moves`            | `MoveSlot[]`                    | Archetype-specific move slots                             |
+| `xp`               | `number`                        | Experience points (starts at 0, threshold-gated leveling) |
+| `notes`            | `string`                        | Free-text field (empty initially)                         |
+| `portrait`         | `string?`                       | Base64 image data from upload                             |
+| `summary`          | `string?`                       | NLP-generated one-line description                        |
+| `createdAt`        | `number`                        | Timestamp                                                 |
 
 ---
 
@@ -223,9 +226,10 @@ npm run format       # Auto-format
 ### Testing
 
 Vitest with two test projects:
+
 - **client** — Browser tests via Playwright (headless Chromium). Matches `src/**/*.svelte.{test,spec}.{js,ts}`.
 - **server** — Node environment tests. Matches `src/**/*.{test,spec}.{js,ts}`.
-All tests require assertions (`expect.requireAssertions: true`).
+  All tests require assertions (`expect.requireAssertions: true`).
 
 ---
 

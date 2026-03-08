@@ -20,9 +20,8 @@ export function capitalize(text: string) {
 	return text.charAt(0).toLocaleUpperCase() + text.slice(1);
 }
 
-
 function startsWithVowel(word: string): boolean {
-  return /^[aeiou]/i.test(word);
+	return /^[aeiou]/i.test(word);
 }
 
 export function prepositionForExperience(sentence: string): string {
@@ -30,20 +29,20 @@ export function prepositionForExperience(sentence: string): string {
 
 	const firstWord = doc.termList()[0].text;
 	const firstWordDoc = nlp(firstWord);
-	let preposition = 'was'
+	let preposition = 'was';
 	if (firstWordDoc.nouns().length > 0) {
-		preposition = 'is a'
-	} else if (firstWordDoc.verbs().length === 0){
-		preposition = 'is a'
+		preposition = 'is a';
+	} else if (firstWordDoc.verbs().length === 0) {
+		preposition = 'is a';
 	} else {
-		const firstVerb = doc.verbs(0)
-		preposition =  firstVerb.toPastTense().text() === firstVerb.text() ? 'was' : 'is a'
+		const firstVerb = doc.verbs(0);
+		preposition = firstVerb.toPastTense().text() === firstVerb.text() ? 'was' : 'is a';
 	}
 
 	if (preposition === 'is a' && startsWithVowel(firstWord)) {
-		preposition = 'is an'
+		preposition = 'is an';
 	}
-	return preposition
+	return preposition;
 }
 
 export function generateId() {

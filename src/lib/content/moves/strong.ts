@@ -1,4 +1,4 @@
-import { WEAPON } from "../randomTables/weapon";
+import { WEAPON } from '../randomTables/weapon';
 
 export const STRONG_PREFIX = [
 	'Crushing',
@@ -67,7 +67,7 @@ export const STRONG_PREFIX = [
 	'Cudgel',
 	'Gauntlet'
 ];*/
-export const STRONG_WEAPON = WEAPON as string[]
+export const STRONG_WEAPON = WEAPON as string[];
 export const STRONG_SUFFIX = [
 	'Strike',
 	'Charge',
