@@ -83,10 +83,15 @@
 					placeholder="Describe this move…"
 					rows="2"
 					class="mx-3 mb-2 w-[calc(100%-1.5rem)] rounded border bg-transparent px-3 py-2 text-sm outline-none"
-					style="border-color: var(--border-color); color: var({move.active ? '--text-primary' : '--text-secondary'}); resize: vertical;"
+					style="border-color: var(--border-color); color: var({move.active
+						? '--text-primary'
+						: '--text-secondary'}); resize: vertical;"
 				/>
 			{:else if move.description}
-				<p class="px-3 pb-2 text-sm italic" style="color: var({move.active ? '--text-primary' : '--text-secondary'});">
+				<p
+					class="px-3 pb-2 text-sm italic"
+					style="color: var({move.active ? '--text-primary' : '--text-secondary'});"
+				>
 					{move.description}
 				</p>
 			{/if}
