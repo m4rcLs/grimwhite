@@ -361,6 +361,13 @@
 					>
 						Notes
 					</button>
+					<button
+						onclick={() => character && characterStore.exportCharacter(character)}
+						class="rounded border px-4 py-2 text-sm transition hover:opacity-80"
+						style="font-family: var(--font-heading); border-color: var(--border-color); color: var(--text-secondary);"
+					>
+						Export
+					</button>
 					{#if canLevelUp(character)}
 						<button
 							onclick={openLevelUp}
