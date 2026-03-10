@@ -22,6 +22,7 @@ export interface Experience {
 export interface Move {
 	id: string;
 	name: string;
+	description?: string;
 	active?: boolean;
 }
 

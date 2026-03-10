@@ -675,6 +675,10 @@
 								if (!draft) return;
 								draft.moves[slotIndex].moves[moveIndex].name = name;
 							}}
+							ondescriptionchange={(moveIndex, description) => {
+								if (!draft) return;
+								draft.moves[slotIndex].moves[moveIndex].description = description;
+							}}
 							ontoggleactive={(moveIndex) => {
 								if (!draft) return;
 								const activating = !draft.moves[slotIndex].moves[moveIndex].active;
