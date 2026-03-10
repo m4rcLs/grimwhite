@@ -1,21 +1,31 @@
 export const AFFILIATIONS = [
-	'Clan of the Thundering Herd',
-	'Order of the Black Sepulcher',
-	'Crimson Banner Company',
-	'Ashen Covenant',
-	'Gilded Court',
-	'Brotherhood of Salt',
+	// Factions
+	'The Clan of the Thundering Herd',
+	'The Order of the Black Sepulcher',
+	'The Crimson Banner Company',
+	'The Ashen Covenant',
+	'The Gilded Court',
+	'The Brotherhood of Salt',
+	// Current Reigning powers
+	'The Cranium Cabal',
+	// Forgotten Gods
+	'Heralds of Chaldaroth',
 	'The Sularian Church',
-	'Oram Hai',
-	'Children of the Sun',
+	'The Oram Hai',
+	"Xethys' Concealing Feathers",
+	"Stewards of Arcane Consumption",
+	"Damani's Curtisans",
+	'The Children of the Sun',
+	"The Masons of Archenthios",
+	"The Wind-Whisperers of Fiunurr",
+	// Cities & Regions
 	'Sargrad',
 	'Innis',
 	'Ursalis',
 	'Tarasrael',
 	'Harunkaray',
-	'The Cranium Cabal',
 	'Tiste Andii',
 	'Hamoratt',
 	'Orinfell',
-	'Lawbrand'
+	'Lawbrand',
 ];

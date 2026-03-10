@@ -10,7 +10,7 @@ import {
 import { generateName } from './generateName';
 
 import { EXPERIENCES } from '../content/experiences';
-import { ANCESTRIES, ancestryAsTrait, type Ancestry } from '../content/ancestries';
+import { ANCESTRIES, ancestryAsTrait, RARE_ANCESTRIES, type Ancestry } from '../content/ancestries';
 import { VOCATIONS } from '../content/vocations';
 import { AFFILIATIONS } from '../content/affiliations';
 
@@ -93,22 +93,26 @@ function generateMoveSlot(archetype: Archetype) {
 }
 
 function generateAncestry(): Ancestry {
-	const defaultChance = Math.random() < 0.5;
+	const rareChance = Math.random() < 0.2;
 	const defaultAncestry = ANCESTRIES.find((a) => a.isDefault);
+	let chosen = defaultAncestry
+	if (rareChance) {
+		chosen = randomFrom(RARE_ANCESTRIES);
+	} else {
+		chosen = randomFrom(ANCESTRIES)
+	}
 
-	if (defaultChance && defaultAncestry) {
+	if (chosen.isDefault) {
 		return {
-			name: defaultAncestry.name,
+			name: chosen.name,
 			isDefault: true,
-			assignedAttributes: assignRandomAttributes(defaultAncestry.attributeCount ?? 0)
+			assignedAttributes: assignRandomAttributes(chosen.attributeCount ?? 0)
 		};
 	}
 
-	const nonHumans = ANCESTRIES.filter((a) => !a.isDefault);
-	const chosen = randomFrom(nonHumans);
 
 	return {
-		name: chosen.name,
+		name: chosen.isTransformation ? generateAncestry().name + " " + chosen.name : chosen.name,
 		assignedAttributes: assignRandomAttributes(chosen.attributeCount ?? 0),
 		isDefault: false
 	};
@@ -122,7 +126,7 @@ function generateSummary(
 	ancestry: string
 ) {
 	const preposition = prepositionForExperience(experience);
-	const summary = `A ${archetype} ${ancestry ? ancestry : ''} ${vocation} of the ${affiliation} who ${preposition} ${experience.toLowerCase()}.`;
+	const summary = `A ${archetype} ${ancestry ? ancestry : ''} ${vocation} of ${affiliation} who ${preposition} ${experience.toLowerCase()}.`;
 	return summary;
 }
 
