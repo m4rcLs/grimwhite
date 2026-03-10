@@ -2,6 +2,8 @@ export type AttributeName = 'brawns' | 'agility' | 'wits' | 'presence';
 
 export type Archetype = 'strong' | 'deft' | 'wise';
 
+export type Gender = 'male' | 'female';
+
 export const MoveNames = {
 	strong: 'Combat Maneuver',
 	deft: 'Special Techniques',
@@ -32,6 +34,7 @@ export interface MoveSlot {
 export interface Character {
 	id: string;
 	name: string;
+	gender: Gender;
 	level: number;
 	archetype: Archetype;
 

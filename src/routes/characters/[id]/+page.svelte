@@ -421,14 +421,29 @@
 				<!-- Name / Level / Summary -->
 				<div class="min-w-0 flex-1">
 					{#if editing}
-						<input
-							type="text"
-							bind:value={draft.name}
-							class="mb-1 w-full border-b-2 bg-transparent text-4xl font-bold outline-none"
-							style="border-color: var(--color-gold); color: var(--text-primary);"
-						/>
+						<div class="mb-1 flex items-center gap-2">
+							<input
+								type="text"
+								bind:value={draft.name}
+								class="w-full border-b-2 bg-transparent text-4xl font-bold outline-none"
+								style="border-color: var(--color-gold); color: var(--text-primary);"
+							/>
+							<button
+								onclick={() => { if (draft) draft.gender = draft.gender === 'male' ? 'female' : 'male'; }}
+								class="shrink-0 text-2xl transition hover:opacity-70"
+								style="color: var(--text-secondary);"
+								title="Toggle gender"
+							>
+								{draft.gender === 'female' ? '♀' : '♂'}
+							</button>
+						</div>
 					{:else}
-						<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
+						<h1 class="mb-1 flex items-center gap-2 text-4xl font-bold">
+							{character.name}
+							<span class="text-2xl" style="color: var(--text-secondary);">
+								{character.gender === 'female' ? '♀' : '♂'}
+							</span>
+						</h1>
 					{/if}
 					<p class="text-lg tracking-wide uppercase" style="color: var(--color-gold);">
 						Level {displayChar.level} — {displayChar.archetype}

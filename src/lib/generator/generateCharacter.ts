@@ -1,4 +1,4 @@
-import type { Character, AttributeName, Archetype } from '../models/character';
+import type { Character, AttributeName, Archetype, Gender } from '../models/character';
 
 import {
 	randomFrom,
@@ -95,11 +95,11 @@ function generateMoveSlot(archetype: Archetype) {
 function generateAncestry(): Ancestry {
 	const rareChance = Math.random() < 0.2;
 	const defaultAncestry = ANCESTRIES.find((a) => a.isDefault);
-	let chosen = defaultAncestry
+	let chosen = defaultAncestry;
 	if (rareChance) {
 		chosen = randomFrom(RARE_ANCESTRIES);
 	} else {
-		chosen = randomFrom(ANCESTRIES)
+		chosen = randomFrom(ANCESTRIES);
 	}
 
 	if (chosen.isDefault) {
@@ -110,9 +110,8 @@ function generateAncestry(): Ancestry {
 		};
 	}
 
-
 	return {
-		name: chosen.isTransformation ? generateAncestry().name + " " + chosen.name : chosen.name,
+		name: chosen.isTransformation ? generateAncestry().name + ' ' + chosen.name : chosen.name,
 		assignedAttributes: assignRandomAttributes(chosen.attributeCount ?? 0),
 		isDefault: false
 	};
@@ -130,8 +129,11 @@ function generateSummary(
 	return summary;
 }
 
+const GENDERS: Gender[] = ['male', 'female'];
+
 export function generateCharacter(): Character {
 	const archetype = randomFrom(ARCHETYPES);
+	const gender = randomFrom(GENDERS);
 	const attributes = baseAttributes();
 	increaseRandomAttribute(attributes);
 
@@ -148,7 +150,8 @@ export function generateCharacter(): Character {
 
 	const character: Character = {
 		id: generateId(),
-		name: generateName(),
+		name: generateName(gender),
+		gender,
 		summary: generateSummary(
 			archetype,
 			vocationName,

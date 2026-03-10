@@ -83,7 +83,12 @@
 
 				<!-- Name / Level / Summary -->
 				<div class="min-w-0 flex-1">
-					<h1 class="mb-1 text-4xl font-bold">{character.name}</h1>
+					<h1 class="mb-1 flex items-center gap-2 text-4xl font-bold">
+						{character.name}
+						<span class="text-2xl" style="color: var(--text-secondary);">
+							{character.gender === 'female' ? '♀' : '♂'}
+						</span>
+					</h1>
 					<p class="text-lg tracking-wide uppercase" style="color: var(--color-gold);">
 						Level {character.level} — {character.archetype}
 					</p>
