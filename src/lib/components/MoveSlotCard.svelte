@@ -98,3 +98,9 @@
 		</div>
 	{/each}
 </div>
+
+<style>
+	textarea::placeholder {
+		color: var(--text-primary);
+	}
+</style>
