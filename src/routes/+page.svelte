@@ -130,7 +130,7 @@
 				<StatBadge label="Grit" value={character.grit} />
 				<StatBadge label="Resolve" value={character.resolve} />
 				{#if essence !== null}
-					<StatBadge label="Essence Pool" value={essence} />
+					<StatBadge label="Essence" value={essence} />
 				{/if}
 			</div>
 
