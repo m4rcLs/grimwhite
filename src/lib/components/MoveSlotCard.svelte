@@ -5,12 +5,14 @@
 		slot,
 		editing = false,
 		onmovechange,
-		ontoggleactive
+		ontoggleactive,
+		onrandomize
 	}: {
 		slot: MoveSlot;
 		editing?: boolean;
 		onmovechange?: (moveIndex: number, name: string) => void;
 		ontoggleactive?: (moveIndex: number) => void;
+		onrandomize?: () => void;
 	} = $props();
 </script>
 
@@ -18,8 +20,20 @@
 	class="rounded-lg p-4"
 	style="background: var(--bg-elevated); border: 1px solid var(--border-color);"
 >
-	<div class="mb-2 text-sm tracking-wide uppercase" style="color: var(--text-muted);">
-		{slot.type}
+	<div class="mb-2 flex items-center justify-between">
+		<span class="text-sm tracking-wide uppercase" style="color: var(--text-muted);">
+			{slot.type}
+		</span>
+		{#if editing && onrandomize}
+			<button
+				onclick={onrandomize}
+				class="rounded p-1 transition hover:opacity-70"
+				style="color: var(--text-muted);"
+				title="Randomize this slot"
+			>
+				🎲
+			</button>
+		{/if}
 	</div>
 
 	{#each slot.moves as move, moveIndex}

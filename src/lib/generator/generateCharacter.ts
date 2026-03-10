@@ -46,7 +46,7 @@ function generateMoveName(prefix: string[], suffix: string[], weapon?: string[])
 	return `${randomFrom(prefix)} ${randomFrom(suffix)}`;
 }
 
-function generateMoveSlot(archetype: Archetype) {
+export function generateMoveSlot(archetype: Archetype) {
 	if (archetype === 'strong') {
 		return {
 			id: generateId(),

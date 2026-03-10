@@ -7,6 +7,8 @@
 	import { STRONG_PREFIX, STRONG_SUFFIX } from '$lib/content/moves/strong';
 	import { DEFT_PREFIX, DEFT_SUFFIX } from '$lib/content/moves/deft';
 	import { WISE_PREFIX, WISE_SUFFIX } from '$lib/content/moves/wise';
+	import { generateMoveSlot } from '$lib/generator/generateCharacter';
+	import { randomUnique } from '$lib/generator/utils';
 	import { characterStore } from '$lib/stores/characterStore';
 	import TiptapEditor from '$lib/components/TiptapEditor.svelte';
 	import WaxSealAttribute from '$lib/components/WaxSealAttribute.svelte';
@@ -429,7 +431,9 @@
 								style="border-color: var(--color-gold); color: var(--text-primary);"
 							/>
 							<button
-								onclick={() => { if (draft) draft.gender = draft.gender === 'male' ? 'female' : 'male'; }}
+								onclick={() => {
+									if (draft) draft.gender = draft.gender === 'male' ? 'female' : 'male';
+								}}
 								class="shrink-0 text-2xl transition hover:opacity-70"
 								style="color: var(--text-secondary);"
 								title="Toggle gender"
@@ -646,6 +650,20 @@
 					style="color: var(--color-gold); font-family: var(--font-heading);"
 				>
 					{MoveNames[displayChar.archetype]}
+					{#if editing}
+						<button
+							onclick={() => {
+								if (!draft) return;
+								const archetype = draft.archetype;
+								draft.moves = draft.moves.map(() => generateMoveSlot(archetype));
+							}}
+							class="ml-2 inline-flex items-center rounded border px-2 py-0.5 text-xs transition hover:opacity-80"
+							style="border-color: var(--border-color); color: var(--text-muted);"
+							title="Randomize moves"
+						>
+							🎲
+						</button>
+					{/if}
 				</h3>
 
 				<div class="space-y-4">
@@ -667,6 +685,10 @@
 								}
 								draft.moves[slotIndex].moves[moveIndex].active = activating;
 							}}
+							onrandomize={() => {
+								if (!draft) return;
+								draft.moves[slotIndex] = generateMoveSlot(draft.archetype);
+							}}
 						/>
 					{/each}
 				</div>
@@ -679,6 +701,21 @@
 					style="color: var(--color-gold); font-family: var(--font-heading);"
 				>
 					Experiences
+					{#if editing}
+						<button
+							onclick={() => {
+								if (!draft) return;
+								draft.experiences = randomUnique(EXPERIENCES, draft.experiences.length).map(
+									(e) => ({ name: e })
+								);
+							}}
+							class="ml-2 inline-flex items-center rounded border px-2 py-0.5 text-xs transition hover:opacity-80"
+							style="border-color: var(--border-color); color: var(--text-muted);"
+							title="Randomize experiences"
+						>
+							🎲
+						</button>
+					{/if}
 				</h3>
 				{#if editing}
 					<div class="space-y-2">
@@ -690,6 +727,17 @@
 									class="flex-1 rounded border bg-transparent px-3 py-2 outline-none"
 									style="border-color: var(--border-color); color: var(--text-primary);"
 								/>
+								<button
+									onclick={() => {
+										if (!draft) return;
+										draft.experiences[i].name = randomFrom(EXPERIENCES);
+									}}
+									class="rounded p-2 transition hover:opacity-70"
+									style="color: var(--text-muted);"
+									title="Randomize this experience"
+								>
+									🎲
+								</button>
 								<button
 									onclick={() => removeExperience(i)}
 									class="rounded p-2 transition hover:bg-red-900/40 hover:text-red-400"

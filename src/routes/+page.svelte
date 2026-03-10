@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
-	import { generateCharacter } from '$lib/generator/generateCharacter';
+	import { generateCharacter, generateMoveSlot } from '$lib/generator/generateCharacter';
+	import { randomFrom } from '$lib/generator/utils';
+	import { EXPERIENCES } from '$lib/content/experiences';
 	import { characterStore } from '$lib/stores/characterStore';
 	import { goto } from '$app/navigation';
 	import WaxSealAttribute from '$lib/components/WaxSealAttribute.svelte';
@@ -157,8 +159,15 @@
 				</h3>
 
 				<div class="space-y-4">
-					{#each character.moves as slot}
-						<MoveSlotCard {slot} />
+					{#each character.moves as slot, slotIndex}
+						<MoveSlotCard
+							{slot}
+							editing={true}
+							onrandomize={() => {
+								if (!character) return;
+								character.moves[slotIndex] = generateMoveSlot(character.archetype);
+							}}
+						/>
 					{/each}
 				</div>
 			</div>
@@ -167,8 +176,21 @@
 			<div class="mb-8">
 				<h3 class="mb-3 text-xl font-semibold" style="color: var(--color-gold);">Experiences</h3>
 				<ul class="list-inside list-disc" style="color: var(--text-primary);">
-					{#each character.experiences as exp}
-						<li>{exp.name}</li>
+					{#each character.experiences as exp, i}
+						<li class="flex items-center gap-2">
+							{exp.name}
+							<button
+								onclick={() => {
+									if (!character) return;
+									character.experiences[i].name = randomFrom(EXPERIENCES);
+								}}
+								class="rounded p-1 transition hover:opacity-70"
+								style="color: var(--text-muted);"
+								title="Randomize this experience"
+							>
+								🎲
+							</button>
+						</li>
 					{/each}
 				</ul>
 			</div>
