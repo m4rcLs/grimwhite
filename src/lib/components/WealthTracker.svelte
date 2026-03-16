@@ -19,6 +19,8 @@
 
 	const label = $derived(WEALTH_LABELS[wealth.level]);
 	const isMaxLevel = $derived(wealth.level >= 5);
+	// Absolute filled count across the full track: (level-1)*10 + progress
+	const filledCount = $derived((wealth.level - 1) * 10 + wealth.progress);
 </script>
 
 <div
@@ -62,12 +64,12 @@
 		</div>
 	</div>
 
-	<!-- Wealth level pips with +/- buttons -->
-	<div class="flex items-center justify-center gap-1.5">
+	<!-- Continuous progress track (40 ticks) -->
+	<div class="flex items-end justify-center gap-1.5">
 		{#if ondecrease}
 			<button
 				onclick={ondecrease}
-				class="flex h-5 w-5 items-center justify-center rounded text-xs font-bold transition hover:opacity-80"
+				class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-xs font-bold transition hover:opacity-80"
 				style="background-color: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-color);"
 				disabled={wealth.level <= 1 && wealth.progress <= 0}
 				title="Decrease wealth"
@@ -75,25 +77,35 @@
 				−
 			</button>
 		{/if}
-		<div class="flex gap-1">
-			{#each [1, 2, 3, 4, 5] as level}
-				<div
-					class="h-2 w-5 rounded-sm transition"
+		<div class="flex shrink-0 items-end">
+			{#each Array(40) as _, i}
+				{@const isMilestone = (i + 1) % 10 === 0}
+				{@const filled = i < filledCount}
+				<button
+					onclick={() => onprogresstoggle?.(i)}
+					class="tick shrink-0 transition"
 					style="
-						background: {level <= wealth.level
-							? 'linear-gradient(135deg, var(--color-gold), var(--color-gold-dark))'
+						width: {isMilestone ? '7px' : '5px'};
+						height: {isMilestone ? '16px' : '10px'};
+						margin-left: {i === 0 ? '0' : isMilestone || i % 10 === 0 ? '3px' : '1.5px'};
+						border-radius: 1px;
+						background: {filled
+							? isMilestone
+								? 'var(--color-gold)'
+								: 'linear-gradient(135deg, var(--color-gold), var(--color-gold-dark))'
 							: 'var(--bg-base)'};
-						border: 1px solid var(--color-gold-dark);
-						box-shadow: {level <= wealth.level ? '0 0 4px rgba(184, 159, 93, 0.3)' : 'inset 0 1px 2px rgba(0,0,0,0.3)'};
+						border: 1px solid {isMilestone ? 'var(--color-gold)' : 'var(--color-gold-dark)'};
+						cursor: pointer;
+						box-shadow: {filled ? '0 0 3px rgba(184, 159, 93, 0.3)' : 'inset 0 1px 2px rgba(0,0,0,0.2)'};
 					"
-					title="{level} — {WEALTH_LABELS[level as WealthLevel]}"
-				></div>
+					title="{Math.floor(i / 10) + 1} — {WEALTH_LABELS[(Math.floor(i / 10) + 1) as WealthLevel]}: {(i % 10) + 1}/10"
+				></button>
 			{/each}
 		</div>
 		{#if onincrease}
 			<button
 				onclick={onincrease}
-				class="flex h-5 w-5 items-center justify-center rounded text-xs font-bold transition hover:opacity-80"
+				class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-xs font-bold transition hover:opacity-80"
 				style="background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark)); color: var(--bg-base);"
 				disabled={isMaxLevel}
 				title="Increase wealth"
@@ -102,46 +114,11 @@
 			</button>
 		{/if}
 	</div>
-
-	<!-- Progress track (10 slots) -->
-	{#if !isMaxLevel}
-		<div class="flex flex-col items-center gap-1">
-			<span class="text-[9px] tracking-wide uppercase" style="color: var(--text-muted);">
-				→ {WEALTH_LABELS[Math.min(5, wealth.level + 1) as WealthLevel]}
-			</span>
-			<div class="flex gap-0.5">
-				{#each Array(10) as _, i}
-					<button
-						onclick={() => onprogresstoggle?.(i)}
-						class="progress-pip flex h-4 w-4 items-center justify-center rounded-sm border text-[9px] transition"
-						style="
-							border-color: var(--color-gold-dark);
-							background: {i < wealth.progress
-								? 'linear-gradient(135deg, var(--color-gold), var(--color-gold-dark))'
-								: 'var(--bg-base)'};
-							color: {i < wealth.progress ? 'var(--bg-base)' : 'var(--text-muted)'};
-							cursor: pointer;
-							box-shadow: {i < wealth.progress ? '0 0 3px rgba(184, 159, 93, 0.3)' : 'inset 0 1px 2px rgba(0,0,0,0.2)'};
-						"
-						title="Coin {i + 1}/10"
-					>
-						{#if i < wealth.progress}
-							¢
-						{/if}
-					</button>
-				{/each}
-			</div>
-		</div>
-	{:else}
-		<div class="text-center">
-			<span class="text-[10px] italic" style="color: var(--text-muted);">Maximum wealth</span>
-		</div>
-	{/if}
 </div>
 
 <style>
-	.progress-pip:hover {
-		opacity: 0.85;
-		transform: scale(1.1);
+	.tick:hover {
+		opacity: 0.8;
+		transform: scaleY(1.2);
 	}
 </style>

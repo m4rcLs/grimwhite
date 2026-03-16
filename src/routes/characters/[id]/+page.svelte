@@ -324,27 +324,18 @@
 		}
 	}
 
-	function toggleWealthProgress(index: number) {
+	function toggleWealthProgress(absoluteIndex: number) {
 		const target = editing ? draft : character;
 		if (!target) return;
 		const wealth = target.wealth ?? { level: 1 as WealthLevel, progress: 0 };
-		const currentProgress = wealth.progress;
-		let newProgress = index < currentProgress ? index : index + 1;
+		const currentFilled = (wealth.level - 1) * 10 + wealth.progress;
+		let newFilled = absoluteIndex < currentFilled ? absoluteIndex : absoluteIndex + 1;
+		newFilled = Math.max(0, Math.min(40, newFilled));
 
-		// Reduce wealth: clicking first pip when progress is 0 drops a level
-		if (newProgress === 0 && currentProgress === 0 && wealth.level > 1) {
-			const newLevel = (wealth.level - 1) as WealthLevel;
-			const updatedWealth = { level: newLevel, progress: 9 };
-			if (editing && draft) {
-				draft.wealth = updatedWealth;
-			} else if (character) {
-				characterStore.updateCharacter({ ...character, wealth: updatedWealth });
-			}
-			return;
-		}
+		const newLevel = Math.min(5, Math.floor(newFilled / 10) + 1) as WealthLevel;
+		const newProgress = newLevel >= 5 ? Math.min(newFilled - 40, 0) : newFilled - (newLevel - 1) * 10;
 
-		newProgress = Math.min(newProgress, 10);
-		const updatedWealth = { ...wealth, progress: newProgress };
+		const updatedWealth = { level: newLevel, progress: Math.max(0, Math.min(newProgress, 10)) };
 		if (editing && draft) {
 			draft.wealth = updatedWealth;
 		} else if (character) {
@@ -367,8 +358,12 @@
 		const target = editing ? draft : character;
 		if (!target) return;
 		const wealth = target.wealth ?? { level: 1 as WealthLevel, progress: 0 };
-		if (wealth.level >= 5) return;
-		const updated = { level: (wealth.level + 1) as WealthLevel, progress: 0 };
+		const filled = (wealth.level - 1) * 10 + wealth.progress;
+		if (filled >= 40) return;
+		const newFilled = filled + 1;
+		const newLevel = Math.min(5, Math.floor(newFilled / 10) + 1) as WealthLevel;
+		const newProgress = newFilled - (newLevel - 1) * 10;
+		const updated = { level: newLevel, progress: Math.min(newProgress, 10) };
 		if (editing && draft) {
 			draft.wealth = updated;
 		} else if (character) {
@@ -380,10 +375,12 @@
 		const target = editing ? draft : character;
 		if (!target) return;
 		const wealth = target.wealth ?? { level: 1 as WealthLevel, progress: 0 };
-		if (wealth.level <= 1 && wealth.progress <= 0) return;
-		const updated = wealth.level > 1
-			? { level: (wealth.level - 1) as WealthLevel, progress: 9 }
-			: { level: 1 as WealthLevel, progress: 0 };
+		const filled = (wealth.level - 1) * 10 + wealth.progress;
+		if (filled <= 0) return;
+		const newFilled = filled - 1;
+		const newLevel = Math.min(5, Math.floor(newFilled / 10) + 1) as WealthLevel;
+		const newProgress = newFilled - (newLevel - 1) * 10;
+		const updated = { level: newLevel, progress: Math.max(0, newProgress) };
 		if (editing && draft) {
 			draft.wealth = updated;
 		} else if (character) {
