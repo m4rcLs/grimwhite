@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marked } from 'marked';
-	import { type Character, type AttributeName, MoveNames } from '$lib/models/character';
+	import { type Character, type AttributeName, MoveNames, type WealthLevel } from '$lib/models/character';
 	import { ARCHETYPES } from '$lib/content/archetypes';
 	import { ANCESTRIES } from '$lib/content/ancestries';
 	import { EXPERIENCES } from '$lib/content/experiences';
@@ -18,6 +18,8 @@
 	import MoveSlotCard from '$lib/components/MoveSlotCard.svelte';
 	import CharacterPortrait from '$lib/components/CharacterPortrait.svelte';
 	import XpTracker from '$lib/components/XpTracker.svelte';
+	import CoinsTracker from '$lib/components/CoinsTracker.svelte';
+	import WealthTracker from '$lib/components/WealthTracker.svelte';
 	import ArchetypeFeatureCard from '$lib/components/ArchetypeFeatureCard.svelte';
 	import PortraitUploadModal from '$lib/components/PortraitUploadModal.svelte';
 	import LevelUpModal from '$lib/components/LevelUpModal.svelte';
@@ -308,6 +310,86 @@
 		if (needed === null) return;
 		characterStore.updateCharacter({ ...character, xp: needed });
 	}
+
+	function toggleCoin(index: number) {
+		const target = editing ? draft : character;
+		if (!target) return;
+		const current = target.coins ?? 0;
+		// If clicking the last filled coin, unfill it; otherwise fill up to clicked index
+		const newCoins = index < current ? index : Math.min(index + 1, 4);
+		if (editing && draft) {
+			draft.coins = newCoins;
+		} else if (character) {
+			characterStore.updateCharacter({ ...character, coins: newCoins });
+		}
+	}
+
+	function toggleWealthProgress(index: number) {
+		const target = editing ? draft : character;
+		if (!target) return;
+		const wealth = target.wealth ?? { level: 1 as WealthLevel, progress: 0 };
+		const currentProgress = wealth.progress;
+		let newProgress = index < currentProgress ? index : index + 1;
+
+		// Reduce wealth: clicking first pip when progress is 0 drops a level
+		if (newProgress === 0 && currentProgress === 0 && wealth.level > 1) {
+			const newLevel = (wealth.level - 1) as WealthLevel;
+			const updatedWealth = { level: newLevel, progress: 9 };
+			if (editing && draft) {
+				draft.wealth = updatedWealth;
+			} else if (character) {
+				characterStore.updateCharacter({ ...character, wealth: updatedWealth });
+			}
+			return;
+		}
+
+		newProgress = Math.min(newProgress, 10);
+		const updatedWealth = { ...wealth, progress: newProgress };
+		if (editing && draft) {
+			draft.wealth = updatedWealth;
+		} else if (character) {
+			characterStore.updateCharacter({ ...character, wealth: updatedWealth });
+		}
+	}
+
+	function changeWealthLevel(level: WealthLevel) {
+		if (editing && draft) {
+			draft.wealth = { ...(draft.wealth ?? { level: 1 as WealthLevel, progress: 0 }), level };
+		} else if (character) {
+			characterStore.updateCharacter({
+				...character,
+				wealth: { ...(character.wealth ?? { level: 1 as WealthLevel, progress: 0 }), level }
+			});
+		}
+	}
+
+	function increaseWealth() {
+		const target = editing ? draft : character;
+		if (!target) return;
+		const wealth = target.wealth ?? { level: 1 as WealthLevel, progress: 0 };
+		if (wealth.level >= 5) return;
+		const updated = { level: (wealth.level + 1) as WealthLevel, progress: 0 };
+		if (editing && draft) {
+			draft.wealth = updated;
+		} else if (character) {
+			characterStore.updateCharacter({ ...character, wealth: updated });
+		}
+	}
+
+	function decreaseWealth() {
+		const target = editing ? draft : character;
+		if (!target) return;
+		const wealth = target.wealth ?? { level: 1 as WealthLevel, progress: 0 };
+		if (wealth.level <= 1 && wealth.progress <= 0) return;
+		const updated = wealth.level > 1
+			? { level: (wealth.level - 1) as WealthLevel, progress: 9 }
+			: { level: 1 as WealthLevel, progress: 0 };
+		if (editing && draft) {
+			draft.wealth = updated;
+		} else if (character) {
+			characterStore.updateCharacter({ ...character, wealth: updated });
+		}
+	}
 </script>
 
 {#if notFound}
@@ -571,68 +653,88 @@
 				</div>
 			</div>
 
-			<!-- Grit, Resolve & Essence -->
-			<div class="mb-8 flex flex-wrap gap-6">
-				<StatBadge
-					label="Grit"
-					value={displayChar.grit}
-					{editing}
-					onvaluechange={(v) => {
-						if (draft) draft.grit = v;
-					}}
-				/>
-				<StatBadge
-					label="Resolve"
-					value={displayChar.resolve}
-					{editing}
-					onvaluechange={(v) => {
-						if (draft) draft.resolve = v;
-					}}
-				/>
-				{#if maxEssence && maxEssence > 0}
+			<!-- Traits & Stats -->
+			<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto]">
+				<!-- Left: Traits -->
+				<div class="space-y-4">
+					<TraitRow
+						label="Ancestry"
+						trait={displayChar.ancestry}
+						{editing}
+						maxAttributes={editing ? getAncestryAttributeLimit(draft.ancestry.name) : 2}
+						onnamechange={(name) => {
+							if (draft) draft.ancestry.name = name;
+						}}
+						ontoggleattribute={(attr) => toggleTraitAttribute('ancestry', attr)}
+					/>
+					<TraitRow
+						label="Vocation"
+						trait={displayChar.vocation}
+						{editing}
+						maxAttributes={TRAIT_ATTRIBUTE_LIMITS.vocation}
+						noAttributeText={displayChar.archetype === 'deft' ? 'Applies to any attribute' : ''}
+						onnamechange={(name) => {
+							if (draft) draft.vocation.name = name;
+						}}
+						ontoggleattribute={(attr) => toggleTraitAttribute('vocation', attr)}
+					/>
+					<TraitRow
+						label="Affiliation"
+						trait={displayChar.affiliations[0] ?? { name: '', assignedAttributes: [] }}
+						{editing}
+						maxAttributes={TRAIT_ATTRIBUTE_LIMITS.affiliation}
+						onnamechange={(name) => {
+							if (draft) draft.affiliations[0].name = name;
+						}}
+						ontoggleattribute={(attr) => toggleTraitAttribute('affiliation', attr)}
+					/>
+				</div>
+
+				<!-- Right: Grit, Resolve & Essence -->
+				<div class="flex flex-col gap-4">
 					<StatBadge
-						label="Essence"
-						value={editing && maxEssence > 0 ? currentEssence : `${currentEssence}/${maxEssence}`}
+						label="Grit"
+						value={displayChar.grit}
 						{editing}
 						onvaluechange={(v) => {
-							currentEssence = v;
+							if (draft) draft.grit = v;
 						}}
 					/>
-				{/if}
+					<StatBadge
+						label="Resolve"
+						value={displayChar.resolve}
+						{editing}
+						onvaluechange={(v) => {
+							if (draft) draft.resolve = v;
+						}}
+					/>
+					{#if maxEssence && maxEssence > 0}
+						<StatBadge
+							label="Essence"
+							value={editing && maxEssence > 0 ? currentEssence : `${currentEssence}/${maxEssence}`}
+							{editing}
+							onvaluechange={(v) => {
+								currentEssence = v;
+							}}
+						/>
+					{/if}
+				</div>
 			</div>
 
-			<!-- Traits -->
-			<div class="mb-8 space-y-4">
-				<TraitRow
-					label="Ancestry"
-					trait={displayChar.ancestry}
+			<!-- Coins & Wealth -->
+			<div class="mb-8 flex flex-wrap items-stretch gap-4">
+				<CoinsTracker
+					coins={displayChar.coins ?? 0}
 					{editing}
-					maxAttributes={editing ? getAncestryAttributeLimit(draft.ancestry.name) : 2}
-					onnamechange={(name) => {
-						if (draft) draft.ancestry.name = name;
-					}}
-					ontoggleattribute={(attr) => toggleTraitAttribute('ancestry', attr)}
+					ontogglecoin={toggleCoin}
 				/>
-				<TraitRow
-					label="Vocation"
-					trait={displayChar.vocation}
+				<WealthTracker
+					wealth={displayChar.wealth ?? { level: 1, progress: 0 }}
 					{editing}
-					maxAttributes={TRAIT_ATTRIBUTE_LIMITS.vocation}
-					noAttributeText={displayChar.archetype === 'deft' ? 'Applies to any attribute' : ''}
-					onnamechange={(name) => {
-						if (draft) draft.vocation.name = name;
-					}}
-					ontoggleattribute={(attr) => toggleTraitAttribute('vocation', attr)}
-				/>
-				<TraitRow
-					label="Affiliation"
-					trait={displayChar.affiliations[0] ?? { name: '', assignedAttributes: [] }}
-					{editing}
-					maxAttributes={TRAIT_ATTRIBUTE_LIMITS.affiliation}
-					onnamechange={(name) => {
-						if (draft) draft.affiliations[0].name = name;
-					}}
-					ontoggleattribute={(attr) => toggleTraitAttribute('affiliation', attr)}
+					onprogresstoggle={toggleWealthProgress}
+					onlevelchange={changeWealthLevel}
+					onincrease={increaseWealth}
+					ondecrease={decreaseWealth}
 				/>
 			</div>
 

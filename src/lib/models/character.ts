@@ -32,6 +32,21 @@ export interface MoveSlot {
 	moves: Move[];
 }
 
+export type WealthLevel = 1 | 2 | 3 | 4 | 5;
+
+export const WEALTH_LABELS: Record<WealthLevel, string> = {
+	1: 'Poor',
+	2: 'Modest',
+	3: 'Comfortable',
+	4: 'Wealthy',
+	5: 'Rich'
+};
+
+export interface Wealth {
+	level: WealthLevel;
+	progress: number; // 0-9 progress toward next level
+}
+
 export interface Character {
 	id: string;
 	name: string;
@@ -57,6 +72,8 @@ export interface Character {
 	essence?: { max: number; current: number };
 
 	xp: number;
+	coins: number; // 0-4
+	wealth: Wealth;
 	notes: string;
 	portrait?: string;
 	summary?: string;

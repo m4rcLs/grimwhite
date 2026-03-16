@@ -13,7 +13,7 @@
 </script>
 
 <div
-	class="rounded px-5 py-3"
+	class="flex items-center justify-between rounded px-5 py-3"
 	style="background: var(--bg-surface); border: 1px solid var(--border-color);"
 >
 	<span class="text-sm" style="color: var(--text-secondary); font-family: var(--font-heading);"
@@ -25,7 +25,7 @@
 			min="0"
 			value={typeof value === 'string' ? 0 : value}
 			oninput={(e) => onvaluechange(Number(e.currentTarget.value))}
-			class="ml-2 w-18 rounded border bg-transparent text-center text-xl font-bold outline-none"
+			class="ml-2 w-18 rounded border bg-transparent text-right text-xl font-bold outline-none"
 			style="border-color: var(--border-color); color: var(--color-gold);"
 		/>
 	{:else}

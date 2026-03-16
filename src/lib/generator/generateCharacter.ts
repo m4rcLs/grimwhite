@@ -178,6 +178,8 @@ export function generateCharacter(): Character {
 		experiences,
 		moves,
 		xp: 0,
+		coins: 0,
+		wealth: { level: 1, progress: 0 },
 		notes: '',
 		bloodied: false,
 		rattled: false,
