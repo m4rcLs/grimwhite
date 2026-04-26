@@ -3,11 +3,15 @@ export const AFFILIATIONS = [
 	'The Clan of the Thundering Herd',
 	'The Order of the Black Sepulcher',
 	'The Crimson Banner Company',
-	'The Ashen Covenant',
+	'The Sularian Crosstraders',
 	'The Gilded Court',
 	'The Brotherhood of Salt',
+	'Byrgenwyrth',
+	'Bohen Dur',
 	// Current Reigning powers
 	'The Cranium Cabal',
+	'The Tharsang Empire',
+	'The Shadowfeather Covenant',
 	// Forgotten Gods
 	'Heralds of Chaldaroth',
 	'The Sularian Church',
@@ -16,7 +20,7 @@ export const AFFILIATIONS = [
 	"Stewards of Arcane Consumption",
 	"Damani's Curtisans",
 	'The Children of the Sun',
-	"The Masons of Archenthios",
+	"The Artisans of Archenthios",
 	"The Wind-Whisperers of Fiunurr",
 	// Cities & Regions
 	'Sargrad',
@@ -28,4 +32,8 @@ export const AFFILIATIONS = [
 	'Hamoratt',
 	'Orinfell',
 	'Lawbrand',
+	'Chu-Ta, Realm of Heavens',
+	'The Truhaldener Forest',
+	'The Padurnic Vale',
+	'Cimitir, the Undying Lands',
 ];

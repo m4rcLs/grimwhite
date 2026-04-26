@@ -23,6 +23,7 @@ export const VOCATIONS = [
 	'architect',
 	'locksmith',
 	'assassin',
+	'doctor',
 	'mason',
 	'astrologer',
 	'merchant',
